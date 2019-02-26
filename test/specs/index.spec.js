@@ -1,7 +1,10 @@
 import { expect } from 'chai';
 import FilteredlistCore from 'Src/index.js';
+import Rxdux from 'Src/rxdux';
 import optionsExample from 'Src/options.example.js';
 //import Collo from 'Lib/index.min.js';
+
+import { _TEST_ } from 'Src/constants';
 
 
 describe('The filteredlist-core library', () => {
@@ -16,7 +19,23 @@ describe('The filteredlist-core library', () => {
   
   it('should return the options', () => {
     expect(fl.options).to.deep.equal(optionsExample);
-	});
+  });
+  
+  it('should instantiate the Rxdux store', () => {
+    expect(fl.rxdux).to.be.instanceOf(Rxdux);
+  });
+
+  it('should be able to update the Rxdux store', () => {
+    fl.rxdux.store$.subscribe(d => {
+      if (d.testUpdate) { 
+        assert.ok(d.testUpdate, 1234); 
+      } else {
+        expect(d.testUpdate).to.be.undefined;
+      }
+    });
+
+    fl.rxdux.dispatch({type: _TEST_, data: {testUpdate: 1234}});
+  });
 });
 
 

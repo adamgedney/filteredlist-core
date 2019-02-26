@@ -47,5 +47,8 @@
     "webpack-merge": "^4.1.0",
     "webpack-node-externals": "^1.6.0",
     "webpack-uglify-js-plugin": "^1.1.9"
+  },
+  "dependencies": {
+    "rxjs": "^6.4.0"
   }
 }
