@@ -1,5 +1,5 @@
 export default class{
-  constructor(options, store) {
+  constructor(options, instance) {
 
   }
 }
