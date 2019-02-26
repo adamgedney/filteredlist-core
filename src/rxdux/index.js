@@ -1,8 +1,8 @@
-import { Subject, isObservable, from } from 'rxjs';
+import { Subject } from 'rxjs';
 import { startWith, scan } from 'rxjs/operators';
 import reducer from './reducer';
 import { _TEST_ } from '../constants';
-let instance;
+let _instance;
 
 // Primary internal options setup
 let initialState = {
@@ -17,7 +17,8 @@ let initialState = {
 };
 
 export default class{
-  constructor(options) {
+  constructor(instance) {
+    this.instance = instance;
     this.initialState = initialState;
     this.reducer = reducer;
     this.action$ = new Subject();
@@ -27,11 +28,12 @@ export default class{
         scan(reducer)
       );
 
-    if (!instance) {
-      instance = this;
+    // Singleton
+    if (!_instance) {
+      _instance = this;
     }
 
-    return instance;
+    return _instance;
   }
 
   dispatch(action) {

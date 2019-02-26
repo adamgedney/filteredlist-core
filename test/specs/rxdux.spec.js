@@ -10,7 +10,7 @@ describe('The Rxdux Store', () => {
   let rxdux;
 
   beforeEach(function() {
-    rxdux = new Rxdux(optionsExample);
+    rxdux = new Rxdux();
   });
 
 	it('should instantiate', () => expect(rxdux).to.be.instanceOf(Rxdux));
@@ -26,13 +26,13 @@ describe('The Rxdux Store', () => {
   });
 
   it('should have initial state', () => expect(rxdux.initialState).to.exist);
-  it('should have reducer', () => assert.typeOf(rxdux.reducer, 'function'));
+  it('should have [reducer] function', () => assert.typeOf(rxdux.reducer, 'function'));
   it('reducer should return a new state', () => {
     expect(rxdux.reducer({}, {type: _TEST_, data: {}})).to.eql({})
     expect(rxdux.reducer({}, {type: _TEST_, data: {test: true}})).to.eql({test: true})
   });
 
-  it('should have dispatch method', () => assert.typeOf(rxdux.dispatch, 'function'));
+  it('should have [dispatch] method', () => assert.typeOf(rxdux.dispatch, 'function'));
   it('dispatch method should update rxdux state', () => {
     rxdux.store$.subscribe(d => {
       if (d.testUpdate) { 

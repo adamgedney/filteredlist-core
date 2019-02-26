@@ -1,5 +1,5 @@
 export default class{
-  constructor(options, instance) {
+  constructor(rxdux, options, instance) {
 
   }
 }

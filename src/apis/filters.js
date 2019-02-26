@@ -1,7 +1,7 @@
 import Views from './views';
 
 export default class{
-  constructor(options, instance) {
+  constructor(rxdux, options, instance) {
     this.views = new Views();
   }
 }
