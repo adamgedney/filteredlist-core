@@ -3,20 +3,39 @@ import Data from './apis/data';
 import Filters from './apis/filters';
 import Queries from './apis/queries';
 import Workspace from './apis/workspace';
+import Hooks from './hooks';
 
 
 export default class{
-  constructor(optionsExample) {
-    this.options = optionsExample;
+  constructor(options) {
+    this.options = options; //  @todo add options schema validation in the future
     
-    this.setupInstances();
-  }
-
-  setupInstances() {
+    /** 
+     * Need access to this.options and there is a preference in order of instantiation 
+     * so we need this setup procedure 
+    */
+    this.hooks = this._setupHooks();
     this.rxdux = new Rxdux(this); 
     this.queries = new Queries(this.rxdux, this.options, this);
     this.workspace = new Workspace(this.rxdux, this.options, this); 
     this.data = new Data(this.rxdux, this.options, this); 
     this.filters = new Filters(this.rxdux, this.options, this);
+  }
+
+  /**
+   * Instantiates hoks, and flattens them down to the instance prototype
+   *
+   * @returns {}
+   */
+  _setupHooks() {
+    const hooks = new Hooks();
+
+    /** Flatten */
+    Object.keys(hooks)
+      .forEach(hookName => {
+        this[hookName] = hooks[hookName];
+      });
+
+    return hooks;
   }
 }

@@ -21,16 +21,16 @@ describe('The Hooks ', () => {
 
 	it('should instantiate', () => expect(hooks).to.be.instanceOf(Hooks));
   
-  it('should have [onFilterChange$] Subject instance property', () => expect(hooks.onFilterChange$).to.be.instanceOf(Subject));
-  it('should have [onFilterRemoved$] Subject instance property', () => expect(hooks.onFilterRemoved$).to.be.instanceOf(Subject));
-  it('should have [onWorkspaceItemAdded$] Subject instance property', () => expect(hooks.onWorkspaceItemAdded$).to.be.instanceOf(Subject));
-  it('should have [onWorkspaceItemRemoved$] Subject instance property', () => expect(hooks.onWorkspaceItemRemoved$).to.be.instanceOf(Subject));
-  it('should have [onWorkSpaceCleared$] Subject instance property', () => expect(hooks.onWorkSpaceCleared$).to.be.instanceOf(Subject));
-  it('should have [onFiltersReset$] Subject instance property', () => expect(hooks.onFiltersReset$).to.be.instanceOf(Subject));
-  it('should have [onPaginationChange$] Subject instance property', () => expect(hooks.onPaginationChange$).to.be.instanceOf(Subject));
-  it('should have [onSort$] Subject instance property', () => expect(hooks.onSort$).to.be.instanceOf(Subject));
-  it('should have [loading$] Subject instance property', () => expect(hooks.loading$).to.be.instanceOf(Subject));
-  it('should have [onColumnVisibilityChange$] Subject instance property', () => expect(hooks.onColumnVisibilityChange$).to.be.instanceOf(Subject));
+  it('should have [onFilterChange$] Observable property', () => expect(hooks.onFilterChange$).to.be.instanceOf(Subject));
+  it('should have [onFilterRemoved$] Observable property', () => expect(hooks.onFilterRemoved$).to.be.instanceOf(Subject));
+  it('should have [onWorkspaceItemAdded$] Observable property', () => expect(hooks.onWorkspaceItemAdded$).to.be.instanceOf(Subject));
+  it('should have [onWorkspaceItemRemoved$] Observable property', () => expect(hooks.onWorkspaceItemRemoved$).to.be.instanceOf(Subject));
+  it('should have [onWorkSpaceCleared$] Observable property', () => expect(hooks.onWorkSpaceCleared$).to.be.instanceOf(Subject));
+  it('should have [onFiltersReset$] Observable property', () => expect(hooks.onFiltersReset$).to.be.instanceOf(Subject));
+  it('should have [onPaginationChange$] Observable property', () => expect(hooks.onPaginationChange$).to.be.instanceOf(Subject));
+  it('should have [onSort$] Observable property', () => expect(hooks.onSort$).to.be.instanceOf(Subject));
+  it('should have [loading$] Observable property', () => expect(hooks.loading$).to.be.instanceOf(Subject));
+  it('should have [onColumnVisibilityChange$] Observable property', () => expect(hooks.onColumnVisibilityChange$).to.be.instanceOf(Subject));
 
   /** Hook Subscription testing */
   function testHook(name) {
@@ -47,7 +47,7 @@ describe('The Hooks ', () => {
     });
   }
 
-  testHook('onFilterChange$');
+  testHook('onFilterChange$'); 
   testHook('onFilterRemoved$');
   testHook('onWorkspaceItemAdded$');
   testHook('onWorkspaceItemRemoved$');
