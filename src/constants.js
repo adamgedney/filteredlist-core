@@ -1,1 +1,1 @@
-export const _TEST_ = '_TEST_';
+export const __TEST_RUNNER = '__TEST_RUNNER';

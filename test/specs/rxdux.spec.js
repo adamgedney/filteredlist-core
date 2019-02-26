@@ -3,7 +3,7 @@ import { of } from 'rxjs';
 import Rxdux from 'Src/rxdux/index.js';
 import optionsExample from 'Src/options.example.js';
 import {
-  _TEST_
+  __TEST_RUNNER
 } from 'Src/constants';
 
 describe('The Rxdux Store', () => {
@@ -28,8 +28,8 @@ describe('The Rxdux Store', () => {
   it('should have initial state', () => expect(rxdux.initialState).to.exist);
   it('should have [reducer] function', () => assert.typeOf(rxdux.reducer, 'function'));
   it('reducer should return a new state', () => {
-    expect(rxdux.reducer({}, {type: _TEST_, data: {}})).to.eql({})
-    expect(rxdux.reducer({}, {type: _TEST_, data: {test: true}})).to.eql({test: true})
+    expect(rxdux.reducer({}, {type: __TEST_RUNNER, data: {}})).to.eql({})
+    expect(rxdux.reducer({}, {type: __TEST_RUNNER, data: {test: true}})).to.eql({test: true})
   });
 
   it('should have [dispatch] method', () => assert.typeOf(rxdux.dispatch, 'function'));
@@ -42,6 +42,6 @@ describe('The Rxdux Store', () => {
       }
     });
 
-    rxdux.dispatch({type: _TEST_, data: {testUpdate: 1234}});
+    rxdux.dispatch({type: __TEST_RUNNER, data: {testUpdate: 1234}});
   });
 });

@@ -10,7 +10,7 @@ import Data from 'Src/apis/data';
 import Filters from 'Src/apis/filters';
 import Hooks from 'Src/hooks';
 
-import { _TEST_ } from 'Src/constants';
+import { __TEST_RUNNER } from 'Src/constants';
 
 describe('The filteredlist-core library', () => {
   let fl;
@@ -37,11 +37,11 @@ describe('The filteredlist-core library', () => {
       }
     });
 
-    fl.rxdux.dispatch({type: _TEST_, data: {testUpdate: 1234}});
+    fl.rxdux.dispatch({type: __TEST_RUNNER, data: {testUpdate: 1234}});
   });
 
   it('should expose Hooks methods to the instance prototype', () => 
     Object.keys(new Hooks())
       .forEach(hook => assert.property(fl, hook)));
-      
+
 });

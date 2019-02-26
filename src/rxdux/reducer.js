@@ -1,5 +1,5 @@
 import {
-  _TEST_
+  __TEST_RUNNER
 } from '../constants';
 
 /** 
@@ -7,7 +7,7 @@ import {
  * */
 export default (options, hooks) => (state = {}, action) => {
   switch(action.type) {
-    case '_TEST_': 
+    case __TEST_RUNNER: 
       return {...state, ...action.data};
     default:
       return state;

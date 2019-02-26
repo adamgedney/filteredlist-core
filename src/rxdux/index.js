@@ -2,7 +2,7 @@ import { Subject } from 'rxjs';
 import { startWith, scan } from 'rxjs/operators';
 import reducer from './reducer';
 import initialState from './initialState';
-import { _TEST_ } from '../constants';
+import { __TEST_RUNNER } from '../constants';
 let _instance;
 
 export default class{
