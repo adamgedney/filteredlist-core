@@ -1,4 +1,4 @@
-import { Subject } from 'rxjs';
+import { Subject, BehaviorSubject } from 'rxjs';
 import { startWith, scan } from 'rxjs/operators';
 import reducer from './reducer';
 import initialState from './initialState';
@@ -10,7 +10,7 @@ export default class{
     this.instance = instance;
     this.initialState = initialState;
     this.reducer = reducer(instance.options, instance.hooks);
-    this.action$ = new Subject();
+    this.action$ = new BehaviorSubject();
     this.store$ = this.action$
       .pipe(  
         startWith(this.initialState),

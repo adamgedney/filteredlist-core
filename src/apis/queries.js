@@ -1,15 +1,17 @@
 import createHistory from 'history/createBrowserHistory';
-import createMemoryHistory from 'history/createMemoryHistory';
-// import _ from 'underscore';
+import { pluck } from 'rxjs/operators';
 
 export default class{
-  constructor(rxdux, options, instance) {
+  constructor(rxdux, options, instance, history) {
+    this.rxdux = rxdux;
+
     /** 
      * Memory History is used by the test runner as there's no DOM. 
-     * createHistory requires a DOM 
+     * Passed in the constructor as history.
+     * createHistory requires a DOM.
      * */
     try{ this.history = createHistory(); }
-    catch(e){ this.history = createMemoryHistory(); }
+    catch(e) { this.history = history; }
   }
 
   /**
@@ -124,13 +126,7 @@ export default class{
    */
   _getPaginationQueryParams() {
     // const params = _.pick(this.parseParms(this.readQueryStringFromURL()), ['skip', 'take', 'page']);
-    const params = Object.entries(this._parseParams(this._readQueryStringFromURL()))
-      .reduce((acc, [k, v]) => {
-        if (['skip', 'take', 'page'].includes(k)) {
-          acc[k] = v;
-        }
-        return acc;
-      }, {});
+    const params = this._pickFromUrl(['skip', 'take', 'page']);
     let str = '';
 
     // @todo convert this to a reducer
@@ -143,12 +139,43 @@ export default class{
   }
 
   /**
+   * Fetches the current view from the url
+   * @returns {string}
+   */
+  _getViewParamFromURL() {
+    // const params = _.pick(parseParms(readQueryStringFromURL()), ['view']);
+    const params = this._pickFromUrl(['view']);
+    let str = '';
+
+    for (let key in params) {
+      str += `${key}=${params[key]}&`
+    }
+
+    return this._parseParams(str.slice(0, -1)).view;
+  }
+
+  /**
+   *Utility for picking properties form the query string
+   * @returns
+   */
+  _pickFromUrl(props = []) {
+    const _props = Array.isArray(props) ? props : [props];
+    return Object.entries(this._parseParams(this._readQueryStringFromURL()))
+      .reduce((acc, [k, v]) => {
+        if (_props.includes(k)) {
+          acc[k] = v;
+        }
+        return acc;
+      }, {});
+  }
+
+  /**
    * From: http://stackoverflow.com/questions/23481979/function-to-convert-url-hash-parameters-into-object-key-value-pairs
    * @param str
    * @returns {{}}
    */
   _parseParams(str = '') {
-    var pieces = str.split("&"), data = {}, i, parts;
+    var pieces = str.replace('?', '').split("&"), data = {}, i, parts;
     // process each query pair
     for (i = 0; i < pieces.length; i++) {
       parts = pieces[i].split("=");
@@ -206,5 +233,64 @@ export default class{
     }
 
     return queryParams;
+  }
+
+  /**
+  * Converts a query String to a base 64 query
+   *
+   */
+  // _base64QueryString() {
+  //   //fl=SOMEBASE64STRING
+  //   return '';
+  // }
+
+  /**
+   *COnverts a base 64 query string to a human query string
+   *
+   * @returns
+   */
+  // _unBase64QueryString() {
+  //   return '';''
+  // }
+
+  /**
+   * Plucks the queryObject from the current state
+   *
+   * @returns
+   */
+  getQueryObject(){
+    return this.rxdux.store$
+      .pipe( pluck('queryObject') );
+  }
+
+    /**
+   * Plucks the queryString from the current state
+   *
+   * @returns
+   */
+  getQueryString(){
+    return this.rxdux.store$
+      .pipe( pluck('queryString') );
+  }
+
+  /**
+   * If we're running in a browser, return the full url, else return a dummy
+   * @returns
+   */
+  getFullUrl() {
+    let window = window;
+    if(!window) { return 'https://iliketurtles.com/?state=sdfhw458hwreojbd'; }
+
+    return window.location.href;
+  }
+
+  /**
+   * Remove the query string fromt he url
+   *
+   */
+  removeQueryStringFromUrl() {
+    this.history.replace(this.history.location.search.replace(/&+$/, ""));
+
+    return `${this.history.location.pathname}${this.history.location.search}`;
   }
 }

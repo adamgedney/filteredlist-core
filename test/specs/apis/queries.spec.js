@@ -1,9 +1,15 @@
 import { expect, assert } from 'chai';
 import QueriesApi from 'Src/apis/queries.js';
+import Rxdux from 'Src/rxdux';
 import optionsExample from 'Src/options.example.js';
+import createMemoryHistory from 'history/createMemoryHistory';
 
 describe('The Queries API ', () => {
+  let history = createMemoryHistory();
   let queriesApi;
+  const rxdux = new Rxdux();
+  let mockUrl = '/';
+  let mockFullUrl = '/?state=sdfhw458hwreojbd&view=test';
   let queryObject = {
     state: ["cbd0a696-2b4f-4469-85d1-f7027345e3e0"],
     genres: ["87fc3814-4cb9-43a5-b723-63ecebd65c5a", "cdc3d520-8b74-46ac-9f4c-8f27d04ab49f"],
@@ -27,7 +33,7 @@ describe('The Queries API ', () => {
   ];
 
   beforeEach(function() {
-    queriesApi = new QueriesApi(optionsExample);
+    queriesApi = new QueriesApi(rxdux, optionsExample, null, history);
   });
 
   it('should instantiate', () => expect(queriesApi).to.be.instanceOf(QueriesApi));
@@ -37,23 +43,58 @@ describe('The Queries API ', () => {
   it('should have [_makeQueryString] method', () => assert.typeOf(queriesApi._makeQueryString, 'function'));
   it('should have [_writeQueryStringToURL] method', () => assert.typeOf(queriesApi._writeQueryStringToURL, 'function'));
   it('should have [_getPaginationQueryParams] method', () => assert.typeOf(queriesApi._getPaginationQueryParams, 'function'));
+  it('should have [_getViewParamFromURL] method', () => assert.typeOf(queriesApi._getViewParamFromURL, 'function'));
+  it('should have [_pickFromUrl] method', () => assert.typeOf(queriesApi._pickFromUrl, 'function'));
   it('should have [_readQueryStringFromURL] method', () => assert.typeOf(queriesApi._readQueryStringFromURL, 'function'));
   it('should have [_parseParams] method', () => assert.typeOf(queriesApi._parseParams, 'function'));
   it('should have [_makeQueryObjectFromQueryString] method', () => assert.typeOf(queriesApi._makeQueryObjectFromQueryString, 'function'));
-  // it('should have [getQueryObject] method', () => assert.typeOf(queriesApi.getQueryObject, 'function'));
-  // it('should have [getQueryString] method', () => assert.typeOf(queriesApi.getQueryString, 'function'));
-  // it('should have [getFullUrl] method', () => assert.typeOf(queriesApi.getFullUrl, 'function'));
-  // it('should have [removeQueryStringFromUrl] method', () => assert.typeOf(queriesApi.removeQueryStringFromUrl, 'function'));
+  it('should have [getQueryObject] method', () => assert.typeOf(queriesApi.getQueryObject, 'function'));
+  it('should have [getQueryString] method', () => assert.typeOf(queriesApi.getQueryString, 'function'));
+  it('should have [getFullUrl] method', () => assert.typeOf(queriesApi.getFullUrl, 'function'));
+  it('should have [removeQueryStringFromUrl] method', () => assert.typeOf(queriesApi.removeQueryStringFromUrl, 'function'));
+  it('should have [_base64QueryString] method', () => assert.typeOf(queriesApi._base64QueryString, 'function'));
+  it('should have [_unBase64QueryString] method', () => assert.typeOf(queriesApi._unBase64QueryString, 'function'));
 
-  it('_makeQueryObject should convert a filters collection to a query object', () =>
+  it('_makeQueryObject method should convert a filters collection to a query object', () =>
     expect(queriesApi._makeQueryObject(filters)).to.eql(queryObjectLessSort));
 
-  it('_makeQueryString should convert a query to a query string', () => 
+  it('_makeQueryString method should convert a query object to a query string', () => 
     expect(queriesApi._makeQueryString(queryObject)).to.eql(queryString));
 
-  it('_writeQueryStringToURL should modify the history api by writing to the location property', () =>
+  it('_writeQueryStringToURL method should modify the history api by writing to the location property', () =>
     expect(queriesApi._writeQueryStringToURL(queryString, {writeQueryStringToURL: true}).location.search).to.eql(queryString)); 
   
-    it('_makeQueryObjectFromQueryString should convert a query object to a query string', () =>
-      expect(queriesApi._makeQueryObjectFromQueryString(queryString)).to.eql(Object.assign(queryObjectLessSort, {sort: { primaryGenre: 'ASC' }})));
+  it('_makeQueryObjectFromQueryString method should convert a query object to a query string', () =>
+    expect(queriesApi._makeQueryObjectFromQueryString(queryString)).to.eql(Object.assign(queryObjectLessSort, {sort: { primaryGenre: 'ASC' }})));
+  
+  it('getQueryObject method should return an Observable that plucks the query object from the current rxdux state', () => {
+    queriesApi.getQueryObject()
+      .subscribe(d => expect(d).to.eql({}) );
+  });
+
+  it('getQueryString method should return an Observable that plucks the query string from the current rxdux state', () => {
+    queriesApi.getQueryString()
+      .subscribe(d => expect(d).to.be.ok('') );
+  });
+
+  it('getFullUrl method should return a full url', () =>
+    assert.ok(queriesApi.getFullUrl(), mockFullUrl));
+  
+  it('removeQueryStringFromUrl method should remove the query string from the url', () => {
+    history.replace(mockFullUrl);
+
+    assert.ok(queriesApi.removeQueryStringFromUrl(), mockUrl);
+  });
+
+  it('_pickFromUrl method should return an object of data picked from the url query string', () => {
+    history.replace(mockFullUrl);
+
+    expect(queriesApi._pickFromUrl('state')).to.eql({state: 'sdfhw458hwreojbd'});
+  });
+
+  it('_getViewParamFromURL method should return an object of view data picked from the url query string', () => {
+    history.replace(mockFullUrl);
+
+    assert.ok(queriesApi._getViewParamFromURL(), 'test');
+  });
 });
