@@ -101,21 +101,33 @@ export default class{
  * @private
  */
   _writeQueryStringToURL(queryString, options) {
-    // @todo add url_encode and base^4 encode and decode to the write system
     // Only allow if the config file specifies
     if (options.writeQueryStringToURL && (queryString || queryString === null)) {
       // const path = this.history.location.href.split('?')[0].split(this.history.location.host)[1];
-      const path = this.history.location.search;
+      const path = this.history.location.pathname;
 
       if (queryString === null) { queryString = ''; }
 
-      let replaceURL = (path + queryString + '&' + this._getPaginationQueryParams()).replace(/&+$/, "");
+      let replaceUrl = (queryString + '&' + this._getPaginationQueryParams()).replace(/&+$/, "");
 
+      // Legacy support for clearPaginationQueryString
       if (options.clearPaginationQueryString) {
-        replaceURL = path + queryString;
+        replaceUrl = queryString;
       }
 
-      this.history.replace(replaceURL);
+      // Write via base64
+      if (options.base64UrlQueryString) {
+        replaceUrl = `fl=${this._base64(replaceUrl)}`;
+
+        console.log('replaceUrl', replaceUrl);
+      }
+
+      /**
+      * @todo Need to rewrite all url interactions to use the history api only. Replace not just the path, but the search params too
+      * history.push('/home', { some: 'state' }) 
+      * https://www.npmjs.com/package/history
+      */
+      this.history.replace({search: replaceUrl});
 
       return this.history;
     }
@@ -236,22 +248,40 @@ export default class{
   }
 
   /**
-  * Converts a query String to a base 64 query
+  * Converts a query String to a base 64 query.
+  * Supports browser and node environments
    *
    */
-  // _base64QueryString() {
-  //   //fl=SOMEBASE64STRING
-  //   return '';
-  // }
+  _base64(inputString) {
+    let _btoa;
+    try{ _btoa = btoa; }
+    catch(e) {
+      _btoa = str => Buffer.from(str).toString('base64');
+    }
+
+    return _btoa(inputString);
+  }
 
   /**
-   *COnverts a base 64 query string to a human query string
+   * Converts a base 64 string to a human readable string.
+   * Supports node env
    *
    * @returns
    */
-  // _unBase64QueryString() {
-  //   return '';''
-  // }
+  _unBase64(inputBase64Str) {
+    const base64Regex = /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/;
+    if(!inputBase64Str.match(base64Regex)) {
+      throw new Error('queries.js[_unBase64QueryString] | Invalid base64 string provided.');
+    }
+
+    let _atob;
+    try{ _atob = btoa; }
+    catch(e) {
+      _atob = str => Buffer.from(str, 'base64').toString();
+    }
+
+    return _atob(inputBase64Str);
+  }
 
   /**
    * Plucks the queryObject from the current state
@@ -279,7 +309,7 @@ export default class{
    */
   getFullUrl() {
     let window = window;
-    if(!window) { return 'https://iliketurtles.com/?state=sdfhw458hwreojbd'; }
+    if(!window) { return 'https://iliketurtles.com/?state=sdfhw458hwreojbd&view=test'; }
 
     return window.location.href;
   }
@@ -289,7 +319,7 @@ export default class{
    *
    */
   removeQueryStringFromUrl() {
-    this.history.replace(this.history.location.search.replace(/&+$/, ""));
+    this.history.push(this.history.location.pathname);
 
     return `${this.history.location.pathname}${this.history.location.search}`;
   }
