@@ -118,8 +118,6 @@ export default class{
       // Write via base64
       if (options.base64UrlQueryString) {
         replaceUrl = `fl=${this._base64(replaceUrl)}`;
-
-        console.log('replaceUrl', replaceUrl);
       }
 
       /**

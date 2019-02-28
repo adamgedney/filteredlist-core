@@ -10,7 +10,7 @@ export default class{
     this.instance = instance;
     this.initialState = initialState;
     this.reducer = reducer(instance.options, instance.hooks);
-    this.action$ = new BehaviorSubject();
+    this.action$ = new Subject();// BehaviorSubject allows us to subscribe after an event
     this.store$ = this.action$
       .pipe(  
         startWith(this.initialState),
