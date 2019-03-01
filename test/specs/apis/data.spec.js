@@ -30,6 +30,7 @@ describe('The Data API ', () => {
   it('should instantiate', () => expect(dataApi).to.be.instanceOf(DataApi));
   it('should have [_transformCollectionToKeyValue] method', () => assert.typeOf(dataApi._transformCollectionToKeyValue, 'function'));
   it('should have [getItems] method', () => assert.typeOf(dataApi.getItems, 'function'));
+  it('should have [getItemById] method', () => assert.typeOf(dataApi.getItemById, 'function'));
   it('should have [pushItems] method', () => assert.typeOf(dataApi.pushItems, 'function'));
   it('should have [replaceItems] method', () => assert.typeOf(dataApi.replaceItems, 'function'));
   it('should have [updateItem] method', () => assert.typeOf(dataApi.updateItem, 'function'));
@@ -65,7 +66,7 @@ describe('The Data API ', () => {
       }); 
   });
 
-  it('replaceItems method should replace all items in the stores item registry', (done) => {   
+  it('replaceItems method should replace all items in the store\'s item registry', (done) => {   
     let called = false;
     
     dataApi.replaceItems(mockReplaceItemsArray, 'id')
@@ -89,6 +90,20 @@ describe('The Data API ', () => {
       .subscribe(d => {
         if(!called) {
           expect(d).to.eql(_mockItems);
+          done();called = true;
+        }
+      }); 
+  });
+
+  it('getItemById method should return the one item in the store', (done) => {   
+    let called = false;
+
+    dataApi.getItemById('34')
+      .subscribe(d => {
+        if(!called) {
+
+          // result relies on the updateItem test to have run first to poulate the store with expected data
+          expect(d).to.eql({id: 34, name: 'EliFishies'}); 
           done();called = true;
         }
       }); 

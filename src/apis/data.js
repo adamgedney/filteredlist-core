@@ -1,9 +1,9 @@
-import {reduce, map} from 'rxjs/operators';
+import {reduce, map, pluck} from 'rxjs/operators';
 import {
   PUSH_ITEMS_TO_STORE,
-  REPLACE_ITEMS_IN_STORE,
-  CLEAR_ITEMS_IN_STORE,
-  UPDATE_ITEM_IN_THE_STORE
+  REPLACE_ITEMS,
+  CLEAR_ITEMS,
+  UPDATE_ITEM
 } from '../constants';
 
 export default class{
@@ -37,6 +37,17 @@ export default class{
   }
 
   /**
+   * Returns an observable of the item in the store
+   *
+   * @param {*} id
+   * @returns
+   */
+  getItemById(id) {
+    return this.rxdux.selector$('items')
+      .pipe(pluck(id));
+  }
+
+  /**
    * Pushes items into the store
    *
    * @param {*} items
@@ -63,7 +74,7 @@ export default class{
    */
   replaceItems(items, idProp = 'id') {
     this.rxdux.dispatch({
-      type: REPLACE_ITEMS_IN_STORE,
+      type: REPLACE_ITEMS,
       data: {
         items: this._transformCollectionToKeyValue(Array.isArray(items) ? items : [items], idProp)
       }
@@ -81,7 +92,7 @@ export default class{
    */
   updateItem(item, idProp = 'id') {
     this.rxdux.dispatch({
-      type: UPDATE_ITEM_IN_THE_STORE,
+      type: UPDATE_ITEM,
       data: {id: item[idProp], item}
     });
 
@@ -95,7 +106,7 @@ export default class{
    */
   clearItems() {
     this.rxdux.dispatch({
-      type: CLEAR_ITEMS_IN_STORE
+      type: CLEAR_ITEMS
     });
 
     return this.getItems(); // use for it's transform pipe

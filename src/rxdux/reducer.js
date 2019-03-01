@@ -7,9 +7,11 @@ import {
   UPDATE_QUERY_STRING,
   UPDATE_QUERY_OBJECT,
   PUSH_ITEMS_TO_STORE,
-  REPLACE_ITEMS_IN_STORE,
-  CLEAR_ITEMS_IN_STORE,
-  UPDATE_ITEM_IN_THE_STORE
+  REPLACE_ITEMS,
+  CLEAR_ITEMS,
+  UPDATE_ITEM,
+  SET_VIEWS,
+  SELECT_VIEW
 } from '../constants';
 
 /** 
@@ -48,16 +50,24 @@ export default (options, hooks) => (state = initialState, action) => {
       _state.items = {..._state.items, ..._data.items};
       return _state;
     
-    case REPLACE_ITEMS_IN_STORE:
+    case REPLACE_ITEMS:
       _state.items = _data.items;
       return _state;
     
-    case UPDATE_ITEM_IN_THE_STORE:
+    case UPDATE_ITEM:
       _state.items[_data.id] = Object.assign({}, _state.items[_data.id], _data.item);
       return _state;
     
-    case CLEAR_ITEMS_IN_STORE:
+    case CLEAR_ITEMS:
       _state.items = {}; 
+      return _state;
+
+    case SET_VIEWS:
+      _state.views = _data.views;
+      _state.selectedView = _data.views[0].id; // set selected view as the first item
+
+    case SELECT_VIEW:
+      _state.selectedView = _data.id; 
       return _state;
 
     default:
