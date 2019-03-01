@@ -23,12 +23,17 @@ export default class{
   }
 
   /**
-   * Main dispatcher. Just a proxy to Rx next
+   * Main dispatcher. Just a proxy to Rx next.
+   * Allows an optional selector to be passed to enable a return Observable
    *
    * @param {*} [action={}]
    */
-  dispatch(action = {}) {
+  dispatch(action = {}, selector) {
     this.store.dispatch(action);
+
+    if (selector) {
+      return this.selector$(selector);
+    }
   }
 
   /**

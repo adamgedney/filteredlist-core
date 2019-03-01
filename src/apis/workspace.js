@@ -7,6 +7,7 @@ import {
 export default class{
   constructor(rxdux, options, instance) {
     this.rxdux = rxdux;
+    this.namespace = 'workspace';
   }
 
   /**
@@ -18,7 +19,7 @@ export default class{
    * @returns
    */
   getWorkspace() {
-    return this.rxdux.selector$('workspace');
+    return this.rxdux.selector$(this.namespace);
   }
 
   /**
@@ -27,13 +28,10 @@ export default class{
    * @returns
    */
   addItemToWorkspace(item, idProp = 'id') {
-    this.rxdux.dispatch({
+    return this.rxdux.dispatch({
       type: ADD_ITEM_TO_WORKSPACE,
       data: {id: item[idProp], item}
-    });
-
-    // Enables subscribing to the current event
-    return this.getWorkspace();
+    }, this.namespace);
   }
 
   /** 
@@ -42,13 +40,10 @@ export default class{
    * @returns
    * */
   removeItemFromWorkspace(id) {
-    this.rxdux.dispatch({
+    return this.rxdux.dispatch({
       type: REMOVE_ITEM_FROM_WORKSPACE,
       data: {id}
-    });
-
-    // Enables subscribing to the current event
-    return this.getWorkspace();
+    }, this.namespace);
   }
 
   /**
@@ -57,11 +52,8 @@ export default class{
    * @returns
    */
   clearWorkspace() {
-    this.rxdux.dispatch({
+    return this.rxdux.dispatch({
       type: CLEAR_WORKSPACE
-    });
-
-    // Enables subscribing to the current event
-    return this.getWorkspace();
+    }, this.namespace);
   }
 }

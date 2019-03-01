@@ -98,17 +98,29 @@ export default class{
   }
 
   /**
-   * Updates the query String stored in the store$
+   *Updates the query String stored in the store$
    *
+   * @param {*} queryString
    * @returns
    */
   _writeQueryStringToStore(queryString) {
-    this.rxdux.dispatch({
-      type: UPDATE_QUERY_STRING,
-      data: {queryString}
-    });
+    return this.rxdux.dispatch({
+        type: UPDATE_QUERY_STRING,
+        data: {queryString}
+      }, 'queryString');
+  }
 
-    return this.getQueryString();
+  /**
+   *Updates the query object stored in the store$
+   *
+   * @param {*} queryObject
+   * @returns
+   */
+  _writeQueryObjectToStore(queryObject) {
+    return this.rxdux.dispatch({
+        type: UPDATE_QUERY_OBJECT,
+        data: {queryObject}
+      }, 'queryObject');
   }
 
   /**

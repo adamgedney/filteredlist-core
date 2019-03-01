@@ -77,36 +77,36 @@ describe('The Queries API ', () => {
   it('_makeQueryObjectFromQueryString method should convert a query object to a query string', () =>
     expect(queriesApi._makeQueryObjectFromQueryString(queryString)).to.eql(Object.assign(queryObjectLessSort, {sort: { primaryGenre: 'ASC' }})));
   
-  // it('_writeQueryStringToStore method should update the store with a new query string', done => {
-  //   let called = false;
-  //   let called1 = false;
+  it('_writeQueryStringToStore method should update the store with a new query string', done => {
+    let called = false;
 
-  //   // queriesApi.getQueryString()
-  //   //   .subscribe(c => {
-  //   //     console.log(c);
+    queriesApi._writeQueryStringToStore(queryString)
+      .subscribe(d => {
+        if(!called) {
+          assert.equal(d, queryString);
 
-  //   //     if(!called1) {
-          
-  //   //       assert.equal(c, '')
-  //   //       done();called1 = true;
-  //   //     }
-  //   //   });
+          queriesApi._writeQueryStringToStore('');
+          done();called = true;
+          called = true;
+        }
+      }); 
+  });
 
-  //   queriesApi._writeQueryStringToStore(queryString)
-  //     .subscribe(d => {
-  //       console.log(d);
-  //       // if(!called) {
-  //       //   expect(d).to.eql({});
+  it('_writeQueryObjectToStore method should update the store with a new query object', done => {
+    let called = false;
 
-          
-    
-          
+    queriesApi._writeQueryObjectToStore(queryObject)
+      .subscribe(d => {
+        console.log(d);
+        if(!called) {
+          assert.deepEqual(d, queryObject);
 
-  //       //   // done();called = true;
-  //       //   called = true;
-  //       // }
-  //     }); 
-  // });
+          queriesApi._writeQueryObjectToStore({})
+          done();called = true;
+          called = true;
+        }
+      }); 
+  });
 
   it('getQueryObject method should return an Observable that plucks the query object from the current rxdux state', done => {
     let called = false;

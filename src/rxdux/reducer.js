@@ -36,6 +36,10 @@ export default (options, hooks) => (state = initialState, action) => {
     case UPDATE_QUERY_STRING:
       _state.queryString = _data.queryString;
       return _state;
+    
+    case UPDATE_QUERY_OBJECT:
+      _state.queryObject = _data.queryObject;
+      return _state;
 
     case CLEAR_WORKSPACE: 
       _state.workspace.items = {};
