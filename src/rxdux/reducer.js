@@ -8,7 +8,8 @@ import {
   UPDATE_QUERY_OBJECT,
   PUSH_ITEMS_TO_STORE,
   REPLACE_ITEMS_IN_STORE,
-  CLEAR_ITEMS_IN_STORE
+  CLEAR_ITEMS_IN_STORE,
+  UPDATE_ITEM_IN_THE_STORE
 } from '../constants';
 
 /** 
@@ -51,8 +52,12 @@ export default (options, hooks) => (state = initialState, action) => {
       _state.items = _data.items;
       return _state;
     
+    case UPDATE_ITEM_IN_THE_STORE:
+      _state.items[_data.id] = Object.assign({}, _state.items[_data.id], _data.item);
+      return _state;
+    
     case CLEAR_ITEMS_IN_STORE:
-      _state.items = {};
+      _state.items = {}; 
       return _state;
 
     default:

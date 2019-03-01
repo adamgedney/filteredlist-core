@@ -97,7 +97,6 @@ describe('The Queries API ', () => {
 
     queriesApi._writeQueryObjectToStore(queryObject)
       .subscribe(d => {
-        console.log(d);
         if(!called) {
           assert.deepEqual(d, queryObject);
 

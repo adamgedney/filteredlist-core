@@ -2,12 +2,28 @@ import {reduce, map} from 'rxjs/operators';
 import {
   PUSH_ITEMS_TO_STORE,
   REPLACE_ITEMS_IN_STORE,
-  CLEAR_ITEMS_IN_STORE
+  CLEAR_ITEMS_IN_STORE,
+  UPDATE_ITEM_IN_THE_STORE
 } from '../constants';
 
 export default class{
   constructor(rxdux, options, instance) {
     this.rxdux = rxdux;
+  }
+
+  /**
+   *Converts collection to a key value registry on the prop optionally sepecifiied
+   *
+   * @param {*} collection
+   * @param {string} [idProp='id']
+   * @returns
+   */
+  _transformCollectionToKeyValue(collection, idProp = 'id') {
+    return collection.reduce((acc, curr) => {
+      acc[curr[idProp]] = curr;
+
+      return acc;
+    }, {});
   }
 
   /**
@@ -24,12 +40,15 @@ export default class{
    * Pushes items into the store
    *
    * @param {*} items
+   * @param {*} idProp
    * @returns
    */
-  pushItems(items) {
+  pushItems(items, idProp = 'id') {
     this.rxdux.dispatch({
       type: PUSH_ITEMS_TO_STORE,
-      data: {items: Array.isArray(items) ? items : [items]}
+      data: {
+        items: this._transformCollectionToKeyValue(Array.isArray(items) ? items : [items], idProp)
+      }
     });
 
     return this.getItems(); // use for it's transform pipe
@@ -39,12 +58,31 @@ export default class{
    * Replaces items in the store
    *
    * @param {*} items
+   * @param {*} idProp
    * @returns
    */
-  replaceItems(items) {
+  replaceItems(items, idProp = 'id') {
     this.rxdux.dispatch({
       type: REPLACE_ITEMS_IN_STORE,
-      data: {items: Array.isArray(items) ? items : [items]}
+      data: {
+        items: this._transformCollectionToKeyValue(Array.isArray(items) ? items : [items], idProp)
+      }
+    });
+
+    return this.getItems(); // use for it's transform pipe
+  }
+
+  /**
+   * Updates an item in the store
+   *
+   * @param {*} item
+   * @param {*} idProp
+   * @returns
+   */
+  updateItem(item, idProp = 'id') {
+    this.rxdux.dispatch({
+      type: UPDATE_ITEM_IN_THE_STORE,
+      data: {id: item[idProp], item}
     });
 
     return this.getItems(); // use for it's transform pipe
