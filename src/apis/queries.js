@@ -3,6 +3,7 @@ import {
   UPDATE_QUERY_STRING,
   UPDATE_QUERY_OBJECT
 } from '../constants';
+
 export default class{
   constructor(rxdux, options, instance, history) {
     this.rxdux = rxdux;
@@ -107,7 +108,6 @@ export default class{
       data: {queryString}
     });
 
-    // Enables subscribing to the current event
     return this.getQueryString();
   }
 

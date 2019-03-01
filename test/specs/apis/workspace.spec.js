@@ -48,19 +48,31 @@ describe('The Workspace API ', () => {
       }); 
   });
 
-  it('removeItemFromWorkspace method should return the workspace with an item added', done => {
+  it('removeItemFromWorkspace method should return the workspace with an item removed after having been added', done => {
     let called = false;
+    let called1 = false;
     
-    workspaceApi.removeItemFromWorkspace(mockItem.id)
-      .subscribe(d => {
+    workspaceApi.addItemToWorkspace(mockItem, 'id')
+      .pipe(mergeMap(d => {
         if(!called) {
-          expect(d).to.eql({items: {}});
-          done();called = true;
+          expect(d).to.eql({items: {[mockItem.id]: mockItem}});
+          called = true;
+      
+          return workspaceApi.removeItemFromWorkspace(mockItem.id);
         }
-      }); 
+
+        return of({});
+      }))
+      .subscribe(c => {
+        if(!called1) {
+          expect(c).to.eql({items: {}});
+         
+          done();called1 = true;
+        }
+      });
   });
 
-  it('clearWorkspace method should return the workspace with an item added', done => {
+  it('clearWorkspace method should add an item then clear the workspace', done => {
     let called = false;
     let called1 = false;
     

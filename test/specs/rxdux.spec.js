@@ -25,23 +25,42 @@ describe('The Rxdux Store', () => {
     expect(rxdux).to.deep.equal(rxduxInstance);
   });
 
-  it('should have initial state', () => expect(rxdux.initialState).to.exist);
   it('should have [reducer] function', () => assert.typeOf(rxdux.reducer, 'function'));
+  it('should have [selector$] function', () => assert.typeOf(rxdux.selector$, 'function'));
+  it('should have [dispatch] method', () => assert.typeOf(rxdux.dispatch, 'function'));
+  
   it('reducer should return a new state', () => {
     expect(rxdux.reducer({}, {type: __TEST_RUNNER, data: {}})).to.eql({})
     expect(rxdux.reducer({}, {type: __TEST_RUNNER, data: {test: true}})).to.eql({test: true})
   });
 
-  it('should have [dispatch] method', () => assert.typeOf(rxdux.dispatch, 'function'));
-  it('dispatch method should update rxdux state', () => {
+  it('dispatch method should update rxdux state', done => {
+    let called = false;
+
     rxdux.store$.subscribe(d => {
-      if (d.testUpdate) { 
-        assert.ok(d.testUpdate, 1234); 
-      } else {
-        expect(d.testUpdate).to.be.undefined;
+      if(!called) {
+        if (d.testUpdate) { 
+          assert.equal(d.testUpdate, 1234); 
+        } else {
+          expect(d.testUpdate).to.be.undefined;
+        }
+
+        done();called = true;
       }
     });
 
     rxdux.dispatch({type: __TEST_RUNNER, data: {testUpdate: 1234}});
+  });
+
+  it('selector$ method should return new selected state ONLY when selected state changes', done => {
+
+    rxdux.dispatch({type: __TEST_RUNNER, data: {testUpdateDummy: 1111}});
+    rxdux.dispatch({type: __TEST_RUNNER, data: {testUpdate: 2121}});
+    rxdux.dispatch({type: __TEST_RUNNER, data: {testUpdateDummy: 1010}});
+
+    rxdux.selector$('testUpdate').subscribe(d => {
+      assert.equal(d, 2121); 
+      done();
+    });
   });
 });

@@ -1,3 +1,4 @@
+import initialState from './initialState';
 import {
   __TEST_RUNNER,
   ADD_ITEM_TO_WORKSPACE,
@@ -10,11 +11,11 @@ import {
 /** 
  * Curried. Takes the options and hooks, then returns a real reducer; 
  * */
-export default (options, hooks) => (state = {}, action) => {
+export default (options, hooks) => (state = initialState, action) => {
   let _state = {...state};
   let _data =  action.data;
 
-  // if (action.type === UPDATE_QUERY_STRING) {
+  // if (action.type == 'UPDATE_QUERY_STRING') {
     // console.log(action.type, _state, _data, action);
 
   // }
@@ -32,10 +33,9 @@ export default (options, hooks) => (state = {}, action) => {
       delete _state.workspace.items[_data.id];
       break;
 
-    case UPDATE_QUERY_STRING: 
-    console.log(UPDATE_QUERY_STRING, _state, _data);
+    case UPDATE_QUERY_STRING:
       _state.queryString = _data.queryString;
-      break;
+      return _state;
 
     case CLEAR_WORKSPACE: 
       _state.workspace.items = {};
