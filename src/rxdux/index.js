@@ -1,5 +1,5 @@
 import { Subject, BehaviorSubject } from 'rxjs';
-import { startWith, scan } from 'rxjs/operators';
+import { startWith, scan, pluck } from 'rxjs/operators';
 import reducer from './reducer';
 import initialState from './initialState';
 import { __TEST_RUNNER } from '../constants';
@@ -27,7 +27,19 @@ export default class{
    * Main dispatcher. Just a proxy to Rx next 
   */
   dispatch(action) {
+    // console.log('ACTION ', action);
     this.action$.next(action);
+  }
+
+  /**
+   *Selector to get branches of the store by key
+   *
+   * @param {*} selector
+   * @returns
+   */
+  selector$(selector) {
+    return this.store$
+      .pipe( pluck(selector) );
   }
 
 }

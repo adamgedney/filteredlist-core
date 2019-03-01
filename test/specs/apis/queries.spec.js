@@ -77,14 +77,40 @@ describe('The Queries API ', () => {
   it('_makeQueryObjectFromQueryString method should convert a query object to a query string', () =>
     expect(queriesApi._makeQueryObjectFromQueryString(queryString)).to.eql(Object.assign(queryObjectLessSort, {sort: { primaryGenre: 'ASC' }})));
   
-  it('getQueryObject method should return an Observable that plucks the query object from the current rxdux state', () => {
+  it('_writeQueryStringToStore method should update the store with a new query string', done => {
+      let called = false;
+      
+      queriesApi._writeQueryStringToStore(queryString)
+        .subscribe(d => {
+          if(!called) {
+            expect(d).to.eql({});
+            done();called = true;
+          }
+        }); 
+    });
+
+  it('getQueryObject method should return an Observable that plucks the query object from the current rxdux state', done => {
+    let called = false;
+    
     queriesApi.getQueryObject()
-      .subscribe(d => expect(d).to.eql({}) );
+      .subscribe(d => {
+        if(!called) {
+          expect(d).to.eql({})
+          done();called = true;
+        }
+      });
   });
 
-  it('getQueryString method should return an Observable that plucks the query string from the current rxdux state', () => {
+  it('getQueryString method should return an Observable that plucks the query string from the current rxdux state', done => {
+    let called = false;
+    
     queriesApi.getQueryString()
-      .subscribe(d => assert.equal(d, '') );
+      .subscribe(d => {
+        if(!called) {
+          assert.equal(d, '')
+          done();called = true;
+        }
+      });
   });
 
   it('getFullUrl method should return a full url', () =>

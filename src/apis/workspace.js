@@ -1,4 +1,3 @@
-import { pluck } from 'rxjs/operators';
 import {
   ADD_ITEM_TO_WORKSPACE,
   REMOVE_ITEM_FROM_WORKSPACE,
@@ -11,13 +10,15 @@ export default class{
   }
 
   /**
-   *Retrieve the current workspace from the store$
+   * Retrieve the current workspace from the store$
+   * Because workspace items are in a key value store, we can use the key to 
+   * just reference the actual item in the items collection, so we don't rely on potentially stale data.
+   * The full item is on the value of the workspace items key in case we want stale data after all.
    *
    * @returns
    */
   getWorkspace() {
-    return this.rxdux.store$
-      .pipe( pluck('workspace') );
+    return this.rxdux.selector$('workspace');
   }
 
   /**

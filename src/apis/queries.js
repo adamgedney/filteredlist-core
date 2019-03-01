@@ -1,6 +1,8 @@
 import createHistory from 'history/createBrowserHistory';
-import { pluck } from 'rxjs/operators';
-
+import {
+  UPDATE_QUERY_STRING,
+  UPDATE_QUERY_OBJECT
+} from '../constants';
 export default class{
   constructor(rxdux, options, instance, history) {
     this.rxdux = rxdux;
@@ -92,6 +94,21 @@ export default class{
     }
 
     return queryString;
+  }
+
+  /**
+   * Updates the query String stored in the store$
+   *
+   * @returns
+   */
+  _writeQueryStringToStore(queryString) {
+    this.rxdux.dispatch({
+      type: UPDATE_QUERY_STRING,
+      data: {queryString}
+    });
+
+    // Enables subscribing to the current event
+    return this.getQueryString();
   }
 
   /**
@@ -287,8 +304,7 @@ export default class{
    * @returns
    */
   getQueryObject(){
-    return this.rxdux.store$
-      .pipe( pluck('queryObject') );
+    return this.rxdux.selector$('queryObject');  
   }
 
     /**
@@ -297,8 +313,7 @@ export default class{
    * @returns
    */
   getQueryString(){
-    return this.rxdux.store$
-      .pipe( pluck('queryString') );
+    return this.rxdux.selector$('queryString');
   }
 
   /**

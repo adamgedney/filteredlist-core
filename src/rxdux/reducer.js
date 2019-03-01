@@ -14,6 +14,11 @@ export default (options, hooks) => (state = {}, action) => {
   let _state = {...state};
   let _data =  action.data;
 
+  // if (action.type === UPDATE_QUERY_STRING) {
+    // console.log(action.type, _state, _data, action);
+
+  // }
+
   switch(action.type) {
     case __TEST_RUNNER: 
       _state = {..._state, ..._data};
@@ -25,6 +30,11 @@ export default (options, hooks) => (state = {}, action) => {
 
     case REMOVE_ITEM_FROM_WORKSPACE: 
       delete _state.workspace.items[_data.id];
+      break;
+
+    case UPDATE_QUERY_STRING: 
+    console.log(UPDATE_QUERY_STRING, _state, _data);
+      _state.queryString = _data.queryString;
       break;
 
     case CLEAR_WORKSPACE: 
