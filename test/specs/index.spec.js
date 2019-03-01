@@ -7,6 +7,7 @@ import optionsExample from 'Src/options.example.js';
 import Queries from 'Src/apis/queries';
 import Workspace from 'Src/apis/workspace';
 import Data from 'Src/apis/data';
+import Settings from 'Src/apis/settings';
 import Filters from 'Src/apis/filters';
 import Hooks from 'Src/hooks';
 
@@ -23,6 +24,7 @@ describe('The filteredlist-core library', () => {
   it('should instantiate queries', () => expect(fl.queries).to.be.instanceOf(Queries));
   it('should instantiate workspace', () => expect(fl.workspace).to.be.instanceOf(Workspace));
   it('should instantiate data', () => expect(fl.data).to.be.instanceOf(Data));
+  it('should instantiate settings', () => expect(fl.settings).to.be.instanceOf(Settings));
   it('should instantiate filters', () => expect(fl.filters).to.be.instanceOf(Filters));
   it('should instantiate the Rxdux store', () => expect(fl.rxdux).to.be.instanceOf(Rxdux));
 

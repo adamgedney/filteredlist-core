@@ -1,7 +1,7 @@
 export default {
   queryObject: {},
   queryString: '',
-  items: [],
+  items: {},
   views: [],
   workspace: {
     items: {} // id keyed items

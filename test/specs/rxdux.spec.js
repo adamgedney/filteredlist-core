@@ -25,8 +25,8 @@ describe('The Rxdux Store', () => {
     expect(rxdux).to.deep.equal(rxduxInstance);
   });
 
-  it('should have [reducer] function', () => assert.typeOf(rxdux.reducer, 'function'));
-  it('should have [selector$] function', () => assert.typeOf(rxdux.selector$, 'function'));
+  it('should have [reducer] method', () => assert.typeOf(rxdux.reducer, 'function'));
+  it('should have [selector$] method', () => assert.typeOf(rxdux.selector$, 'function'));
   it('should have [dispatch] method', () => assert.typeOf(rxdux.dispatch, 'function'));
   
   it('reducer should return a new state', () => {
