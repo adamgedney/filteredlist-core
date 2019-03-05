@@ -3,6 +3,16 @@ export default {
   queryString: '',
   items: {},
   views: [], // Keep as array in order to maintain order
+  // views: [
+  //   {
+  //     filterGroups: [{
+  //       id: '',
+  //       filters: [
+  //         {id: ''}
+  //       ]
+  //     }]
+  //   }
+  // ],
   workspace: {
     items: {} // id keyed items
   }, // {where: '[PROPNAME ie. id]', is: 'adjhfoadfh0q973580qy35'}

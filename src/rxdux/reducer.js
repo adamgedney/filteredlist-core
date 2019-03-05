@@ -11,8 +11,13 @@ import {
   CLEAR_ITEMS,
   UPDATE_ITEM,
   SET_VIEWS,
-  SELECT_VIEW
+  SELECT_VIEW,
+  UPDATE_VIEW,
+  UPDATE_COLUMN_VISIBILTY,
+  SET_ALL_COLUMNS_VISIBLE,
+  UNSET_ALL_COLUMNS_VISIBLE
 } from '../constants';
+import _merge from 'lodash.merge';
 
 /** 
  * Curried. Takes the options and hooks, then returns a real reducer; 
@@ -68,6 +73,77 @@ export default (options, hooks) => (state = initialState, action) => {
 
     case SELECT_VIEW:
       _state.selectedView = _data.id; 
+      return _state;
+
+    case UPDATE_VIEW:
+      _state.views = _state.views.map(view => {
+        if (view.id === _data.id) {
+          view = _merge(view, _data.view);
+        }
+
+        return view;
+      });
+
+      return _state;
+
+    case UPDATE_COLUMN_VISIBILTY:
+      const _updates = Array.isArray(_data.updates) ? _data.updates : [_data.updates];
+   
+      // Input data example: _data.id _data.updates = {property: 'title', visible: false}
+      _state.views = _state.views.map(view => {
+
+        // If the view id matches, find & update the column we need to modify
+        if (view.id === _data.id) {
+          view.columns.map(column => {
+
+            // Loop over & apply the updates if the column properties match
+            _updates.forEach(_update => {
+              if (column.property === _update.property) {
+                column.visible = _update.visible;
+              }
+            });
+            
+            return column;
+          });
+        }
+
+        return view;
+      });
+      // console.log("STATE ", JSON.stringify(state, null, 2), _data);
+      return _state;
+
+    case SET_ALL_COLUMNS_VISIBLE:
+      _state.views = _state.views.map(view => {
+
+        // If the view id matches, select all columns visible
+        if (view.id === _data.id) {
+          view.columns.map(column => {
+            column.visible = true;
+      
+            return column;
+          });
+        }
+
+        return view;
+      });
+
+      return _state;
+
+    case UNSET_ALL_COLUMNS_VISIBLE:
+      _state.views = _state.views.map(view => {
+
+        // If the view id matches, select all columns visible
+        if (view.id === _data.id) {
+          view.columns.map(column => {
+            column.visible = false;
+      
+            return column;
+          });
+        }
+
+        return view;
+      });
+
       return _state;
 
     default:
