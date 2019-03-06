@@ -5,6 +5,7 @@ import optionsExample from 'Src/options.example.js';
 import {
   __TEST_RUNNER
 } from 'Src/constants';
+import initialState from 'Src/rxdux/initialState';
 
 describe('The Rxdux Store', () => {
   let rxdux;
@@ -28,6 +29,7 @@ describe('The Rxdux Store', () => {
   it('should have [reducer] method', () => assert.typeOf(rxdux.reducer, 'function'));
   it('should have [selector$] method', () => assert.typeOf(rxdux.selector$, 'function'));
   it('should have [dispatch] method', () => assert.typeOf(rxdux.dispatch, 'function'));
+  it('should have [reset] method', () => assert.typeOf(rxdux.reset, 'function'));
   
   it('reducer should return a new state', () => {
     expect(rxdux.reducer({}, {type: __TEST_RUNNER, data: {}})).to.eql({})
@@ -62,5 +64,12 @@ describe('The Rxdux Store', () => {
       assert.equal(d, 2121); 
       done();
     });
+  });
+
+  it('reset method should revert the store to initial state', done => {
+    rxdux.reset().store$.subscribe(state => {
+      assert.equal(state, initialState);
+      done();
+    })
   });
 });

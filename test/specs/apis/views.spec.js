@@ -8,14 +8,25 @@ describe('The Views API ', () => {
   let viewsApi;
   const rxdux = new Rxdux();
   const mockViews = [
-    {id: 'eli', columns:[{property: 'id', visible: true}, {property: 'title', visible: true}]},
+    {id: 'eli', columns:[{property: 'id', visible: true}, {property: 'title', visible: false}]},
     {id: 'eliWithGlasses', columns:[{property: 'id'}, {property: 'title', visible: true}]},
     {id: 'eliWithAPegLeg', columns:[{property: 'id'}, {property: 'title', visible: false}, {property: 'genre', visible: true}]}
   ];
-  const mockUpdatedViewItem = {id: 'eli', columns:[{property: 'id', visible: true}, {property: 'title', visible: false}]};
+  const mockUpdatedViewItem = {
+    id: 'eli', 
+    columns:[{property: 'id', visible: true}, {property: 'title', visible: false}],
+    _pagination: {
+      "cursor": null,
+      "page": 1,
+      "skip": 0,
+      "take": 25,
+      "totalItems": 0
+    }
+  };
 
   beforeEach(function() {
     viewsApi = new ViewsApi(rxdux, optionsExample);
+    rxdux.reset();
   });
 
   it('should instantiate', () => expect(viewsApi).to.be.instanceOf(ViewsApi));
@@ -32,7 +43,7 @@ describe('The Views API ', () => {
     viewsApi.getViews()
       .subscribe(d => {
         if(!called) {
-          expect(d).to.eql(mockViews);
+          expect(d).to.eql([]);
           done();called = true; 
         }
       }); 
@@ -64,11 +75,12 @@ describe('The Views API ', () => {
 
   it('getSelectedView method should return the full selectedView object', (done) => {   
     let called = false;
-    
+    viewsApi.setViews(mockViews);
+    viewsApi.selectView('eliWithAPegLeg');
     viewsApi.getSelectedView()
       .subscribe(d => {
         if(!called) {
-          expect(d).to.eql(mockViews[2]); // expected result relies on selectView test to have run just previous
+          expect(d).to.eql(mockViews[2]);
           done();called = true;
         }
       }); 
@@ -76,7 +88,7 @@ describe('The Views API ', () => {
 
   it('getViewById method should return the full view object for the specified id', (done) => {   
     let called = false;
-    
+    viewsApi.setViews(mockViews);
     viewsApi.getViewById('eli')
       .subscribe(d => {
         if(!called) {
@@ -88,7 +100,7 @@ describe('The Views API ', () => {
 
   it('updateView method should deep update the view in the store then return the full view object for the specified id', (done) => {   
     let called = false;
-    
+    viewsApi.setViews(mockViews);
     viewsApi.updateView('eli', {columns:[{property: 'id', visible: true}, {property: 'title', visible: false}]})
       .subscribe(d => {
         if(!called) {

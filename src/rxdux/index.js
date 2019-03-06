@@ -2,7 +2,7 @@ import { Subject, BehaviorSubject, of, from } from 'rxjs';
 import {pluck} from 'rxjs/operators';
 import { createStore } from 'redux';
 import reducer from './reducer';
-import { __TEST_RUNNER } from '../constants';
+import { __TEST_RUNNER, RESET } from '../constants';
 let _instance;
 import initialState from  './initialState';
 
@@ -57,5 +57,18 @@ export default class{
       });
 
     return selected$;
+  }
+
+  /**
+   * Reset the store to initial state
+   *
+   * @returns
+   */
+  reset() {
+    this.store.dispatch({
+      type: RESET,
+      data: initialState
+    });
+    return {...this, initialState};
   }
 }

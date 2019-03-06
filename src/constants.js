@@ -1,4 +1,5 @@
 export const __TEST_RUNNER = '__TEST_RUNNER';
+export const RESET = 'RESET';
 
 export const ADD_ITEM_TO_WORKSPACE = 'ADD_ITEM_TO_WORKSPACE';
 export const REMOVE_ITEM_FROM_WORKSPACE = 'REMOVE_ITEM_FROM_WORKSPACE';

@@ -10,7 +10,7 @@ describe('The Filters API ', () => {
   const mockViews = [
     {
       id: 'eli', 
-      columns:[{property: 'id'}, {property: 'title', visible: true}],
+      columns:[{property: 'id', sort: 'ASC' /** ASC, DESC, null */}, {property: 'title', visible: true}],
       filterGroups: [
         {
           id: 'figNewtons',
@@ -18,7 +18,8 @@ describe('The Filters API ', () => {
             {id: 'newtons', type: 'select', value: null}
           ]
         }
-      ]
+      ],
+      // _pagination: {cursor: null, page: 1, skip: 0, take: 25, totalItems: 0}
     },
     {id: 'eliWithGlasses', columns:[{property: 'id'}, {property: 'title', visible: true}]},
     {id: 'eliWithAPegLeg', columns:[{property: 'id'}, {property: 'title', visible: false}, {property: 'genre', visible: true}]}
@@ -34,7 +35,6 @@ describe('The Filters API ', () => {
   it('should instantiate', () => expect(filtersApi).to.be.instanceOf(FiltersApi));
 
   it('should have [getFilters] method', () => assert.typeOf(filtersApi.getFilters, 'function'));
-  it('should have [setFilters] method', () => assert.typeOf(filtersApi.setFilters, 'function'));
   it('should have [getSortFilters] method', () => assert.typeOf(filtersApi.getSortFilters, 'function'));
   it('should have [getPaginationFilters] method', () => assert.typeOf(filtersApi.getPaginationFilters, 'function'));
   it('should have [run] method', () => assert.typeOf(filtersApi.run, 'function'));
@@ -55,25 +55,16 @@ describe('The Filters API ', () => {
       }); 
   });
 
-  it('setFilters method should allow setting the filters for a particular view and filtergroup', (done) => {   
+  it('getSortFilters method should return an Observable that plucks the sort filters from the current rxdux state', (done) => {   
     let called = false;
     
-    filtersApi.setFilters('eli')
+    filtersApi.getSortFilters('eli')
       .subscribe(d => {
         if(!called) {
-          expect(d).to.eql([]);
-          done();called = true;
-        }
-      }); 
-  });
-
-  it('getSortFilters method should return an Observable that plucks the filters from the current rxdux state', (done) => {   
-    let called = false;
-    
-    filtersApi.getSortFilters()
-      .subscribe(d => {
-        if(!called) {
-          expect(d).to.eql([]);
+          expect(d).to.eql([ 
+            { property: 'id', sort: 'ASC' },
+            { property: 'title', sort: null } 
+          ]);
           done();called = true;
         }
       }); 
@@ -82,10 +73,11 @@ describe('The Filters API ', () => {
   it('getPaginationFilters method should return an Observable that plucks the filters from the current rxdux state', (done) => {   
     let called = false;
     
-    filtersApi.getPaginationFilters()
+    filtersApi.getPaginationFilters('eli')
       .subscribe(d => {
         if(!called) {
-          expect(d).to.eql([]);
+          console.log('pd ', d);//{cursor: null, page: 1, skip: 0, take: 25, totalItems: 0}
+          expect(d).to.eql({cursor: null, page: 1, skip: 0, take: 25, totalItems: 0});
           done();called = true;
         }
       }); 

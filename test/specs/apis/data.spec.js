@@ -59,7 +59,6 @@ describe('The Data API ', () => {
     dataApi.pushItems(mockItemsArray, 'id')
       .subscribe(d => {
         if(!called) {
-          console.log(d, mockItemsArray);
           expect(d).to.eql(mockItemsArray);
           done();called = true;
         }

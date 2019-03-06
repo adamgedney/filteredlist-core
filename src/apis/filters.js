@@ -1,6 +1,6 @@
 import {
 } from '../constants';
-import {mergeMap, filter} from 'rxjs/operators';
+import {mergeMap, map} from 'rxjs/operators';
 import { of } from 'rxjs';
 
 export default class{
@@ -23,5 +23,37 @@ export default class{
               .filters
         ))
       )
+  }
+
+  /**
+   * Returns the sort filter values for a column
+   *
+   * @param {*} viewId
+   * @returns
+   */
+  getSortFilters(viewId) {
+    return this.rxdux.selector$('views')
+      .pipe(map(views => 
+        views.filter(view => ((viewId ? view.id === viewId : true)))[0].columns
+          .map(column => ({ 
+            property: column.property, 
+            sort: typeof column.sort === 'undefined' ? null : column.sort
+          }))
+      )); 
+  }
+
+  /**
+   * Returns the pagination portion of the view
+   * example result:   pagination: {cursor: null, page: 1, skip: 0, take: 25, totalItems: 0},// if total isn't supplied then it will default to the items.length
+   *
+   * @param {*} viewId
+   * @returns
+   */
+  getPaginationFilters(viewId) {
+    return this.rxdux.selector$('views')
+      .pipe(map(views => 
+        views.filter(view => ((viewId ? view.id === viewId : true)))[0]
+          ._pagination
+      )); 
   }
 }

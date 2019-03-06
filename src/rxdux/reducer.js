@@ -1,6 +1,7 @@
 import initialState from './initialState';
 import {
   __TEST_RUNNER,
+  RESET,
   ADD_ITEM_TO_WORKSPACE,
   REMOVE_ITEM_FROM_WORKSPACE,
   CLEAR_WORKSPACE,
@@ -29,6 +30,10 @@ export default (options, hooks) => (state = initialState, action) => {
   switch(action.type) {
     case __TEST_RUNNER: 
       _state = {..._state, ..._data};
+      return _state;
+
+    case RESET: 
+      _state = _data;
       return _state;
 
     case ADD_ITEM_TO_WORKSPACE: 
@@ -68,6 +73,13 @@ export default (options, hooks) => (state = initialState, action) => {
       return _state;
 
     case SET_VIEWS:
+      // Includes for pagination
+      _data.views.map(view => {
+        if (!view.hasOwnProperty('_pagination')) {
+          view._pagination = {cursor: null, page: 1, skip: 0, take: 25, totalItems: 0};
+        }
+      });
+
       _state.views = _data.views;
       _state.selectedView = _data.views[0].id; // set selected view as the first item
 
