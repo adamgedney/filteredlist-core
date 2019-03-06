@@ -5,11 +5,11 @@ import WorkspaceApi from 'Src/apis/workspace.js';
 import optionsExample from 'Src/options.example.js';
 import Rxdux from 'Src/rxdux';
 import { of } from 'rxjs';
-
+import Hooks from 'Src/hooks';
 
 describe('The Workspace API ', () => {
   let workspaceApi, workspace$;
-  const rxdux = new Rxdux();
+  const rxdux = new Rxdux({}, new Hooks());
   const mockEmptyWorkspace = {items:{}};
   const mockItem = {id: 1234, name: 'someone'};
 

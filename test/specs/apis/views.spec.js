@@ -2,11 +2,12 @@ import { expect, assert } from 'chai';
 import ViewsApi from 'Src/apis/views.js';
 import optionsExample from 'Src/options.example.js';
 import Rxdux from 'Src/rxdux';
+import Hooks from 'Src/hooks';
 import { stringify } from 'querystring';
 
 describe('The Views API ', () => {
   let viewsApi;
-  const rxdux = new Rxdux();
+  const rxdux = new Rxdux({}, new Hooks());
   const mockViews = [
     {id: 'eli', columns:[{property: 'id', visible: true}, {property: 'title', visible: false}]},
     {id: 'eliWithGlasses', columns:[{property: 'id'}, {property: 'title', visible: true}]},

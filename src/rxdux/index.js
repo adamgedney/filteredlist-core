@@ -7,9 +7,9 @@ let _instance;
 import initialState from  './initialState';
 
 export default class{
-  constructor(instance = {}) {
+  constructor(instance = {}, hooks) {
     this.instance = instance;
-    this.reducer = reducer(instance.options, instance.hooks);
+    this.reducer = reducer(instance.options, hooks);
     this.store = createStore(this.reducer);
     this.store$ = new BehaviorSubject(initialState);
 

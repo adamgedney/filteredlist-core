@@ -19,10 +19,18 @@ describe('The Hooks ', () => {
     };
   });
 
-	it('should instantiate', () => expect(hooks).to.be.instanceOf(Hooks));
+  it('should instantiate', () => expect(hooks).to.be.instanceOf(Hooks));
+  it('should be a singleton', () => {
+    const hooksInstance = new Hooks();
+    hooks.instanceCheck = false;
+    hooksInstance.instanceCheck = true;
+
+    // Two checks will doubly ensure a singleton
+    expect(hooks.instanceCheck).to.be.true;
+    expect(hooks).to.deep.equal(hooksInstance);
+  });
   
   it('should have [onFilterChange$] Observable property', () => expect(hooks.onFilterChange$).to.be.instanceOf(Subject));
-  it('should have [onFilterRemoved$] Observable property', () => expect(hooks.onFilterRemoved$).to.be.instanceOf(Subject));
   it('should have [onWorkspaceItemAdded$] Observable property', () => expect(hooks.onWorkspaceItemAdded$).to.be.instanceOf(Subject));
   it('should have [onWorkspaceItemRemoved$] Observable property', () => expect(hooks.onWorkspaceItemRemoved$).to.be.instanceOf(Subject));
   it('should have [onWorkSpaceCleared$] Observable property', () => expect(hooks.onWorkSpaceCleared$).to.be.instanceOf(Subject));
@@ -31,6 +39,19 @@ describe('The Hooks ', () => {
   it('should have [onSort$] Observable property', () => expect(hooks.onSort$).to.be.instanceOf(Subject));
   it('should have [loading$] Observable property', () => expect(hooks.loading$).to.be.instanceOf(Subject));
   it('should have [onColumnVisibilityChange$] Observable property', () => expect(hooks.onColumnVisibilityChange$).to.be.instanceOf(Subject));
+  it('should have [onSetAllColumnsVisible$] Observable property', () => expect(hooks.onSetAllColumnsVisible$).to.be.instanceOf(Subject));
+  it('should have [onUnsetAllColumnsVisible$] Observable property', () => expect(hooks.onUnsetAllColumnsVisible$).to.be.instanceOf(Subject));
+  
+  it('should have [onDataPushed$] Observable property', () => expect(hooks.onDataPushed$).to.be.instanceOf(Subject));
+  it('should have [onQueryStringUpdated$] Observable property', () => expect(hooks.onQueryStringUpdated$).to.be.instanceOf(Subject));
+  it('should have [onQueryObjectUpdated$] Observable property', () => expect(hooks.onQueryObjectUpdated$).to.be.instanceOf(Subject));
+ 
+  it('should have [onDataReplaced$] Observable property', () => expect(hooks.onDataReplaced$).to.be.instanceOf(Subject));
+  it('should have [onItemUpdated$] Observable property', () => expect(hooks.onItemUpdated$).to.be.instanceOf(Subject));
+  it('should have [onItemsCleared$] Observable property', () => expect(hooks.onItemsCleared$).to.be.instanceOf(Subject));
+  it('should have [onViewsSet$] Observable property', () => expect(hooks.onViewsSet$).to.be.instanceOf(Subject));
+  it('should have [onSelectedViewChange$] Observable property', () => expect(hooks.onSelectedViewChange$).to.be.instanceOf(Subject));
+  it('should have [onViewUpdated$] Observable property', () => expect(hooks.onViewUpdated$).to.be.instanceOf(Subject));
 
   /** Hook Subscription testing */
   function testHook(name) {
@@ -48,7 +69,7 @@ describe('The Hooks ', () => {
   }
 
   testHook('onFilterChange$'); 
-  testHook('onFilterRemoved$');
+  testHook('onFiltersReset$'); 
   testHook('onWorkspaceItemAdded$');
   testHook('onWorkspaceItemRemoved$');
   testHook('onWorkSpaceCleared$');
@@ -56,5 +77,18 @@ describe('The Hooks ', () => {
   testHook('onSort$');
   testHook('loading$');
   testHook('onColumnVisibilityChange$');
+  testHook('onSetAllColumnsVisible$');
+  testHook('onUnsetAllColumnsVisible$');
+
+  testHook('onDataPushed$');
+  testHook('onQueryStringUpdated$');
+  testHook('onQueryObjectUpdated$');
+
+  testHook('onDataReplaced$');
+  testHook('onItemUpdated$');
+  testHook('onItemsCleared$');
+  testHook('onViewsSet$');
+  testHook('onSelectedViewChange$');
+  testHook('onViewUpdated$');
 });
 

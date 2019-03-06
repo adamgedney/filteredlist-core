@@ -4,10 +4,11 @@ import {mergeMap} from 'rxjs/operators';
 import Rxdux from 'Src/rxdux';
 import optionsExample from 'Src/options.example.js';
 import createMemoryHistory from 'history/createMemoryHistory';
+import Hooks from 'Src/hooks';
 
 describe('The Queries API ', () => {
   let history, queriesApi;
-  const rxdux = new Rxdux();
+  const rxdux = new Rxdux({}, new Hooks());
   let mockUrl = '/';
   let mockFullUrl = 'https://iliketurtles.com/?state=sdfhw458hwreojbd&view=test';
   let queryObject = {

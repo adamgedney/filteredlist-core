@@ -2,10 +2,11 @@ import { expect, assert } from 'chai';
 import DataApi from 'Src/apis/data.js';
 import optionsExample from 'Src/options.example.js';
 import Rxdux from 'Src/rxdux';
+import Hooks from 'Src/hooks';
 
 describe('The Data API ', () => {
   let dataApi;
-  const rxdux = new Rxdux();
+  const rxdux = new Rxdux({}, new Hooks());
   const mockEmptyItems = [];
   const mockItemsArray = [
     {id: 0, name: 'Eli'},

@@ -6,10 +6,11 @@ import {of} from 'rxjs';
 import {mergeMap} from 'rxjs/operators';
 import Rxdux from 'Src/rxdux';
 import { of } from 'rxjs';
+import Hooks from 'Src/hooks';
 
 describe('The Settings API ', () => {
   let settingsApi, viewsApi;
-  const rxdux = new Rxdux();
+  const rxdux = new Rxdux({}, new Hooks());
   const mockViews = [
     {id: 'eli', columns:[{property: 'id'}, {property: 'title', visible: true}]},
     {id: 'eliWithGlasses', columns:[{property: 'id'}, {property: 'title', visible: true}]},

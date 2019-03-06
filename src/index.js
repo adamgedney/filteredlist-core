@@ -17,7 +17,7 @@ export default class{
      * so we need this setup procedure 
     */
     this.hooks = this._setupHooks();
-    this.rxdux = new Rxdux(this); 
+    this.rxdux = new Rxdux(this, this.hooks); 
     this.queries = new Queries(this.rxdux, this.options, this);
     this.workspace = new Workspace(this.rxdux, this.options, this); 
     this.settings = new Settings(this.rxdux, this.options, this); 

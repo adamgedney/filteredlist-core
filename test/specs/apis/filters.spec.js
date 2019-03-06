@@ -3,10 +3,11 @@ import FiltersApi from 'Src/apis/filters.js';
 import ViewsApi from 'Src/apis/views.js';
 import optionsExample from 'Src/options.example.js';
 import Rxdux from 'Src/rxdux';
+import Hooks from 'Src/hooks';
 
 describe('The Filters API ', () => {
   let filtersApi, viewsApi;
-  const rxdux = new Rxdux();
+  const rxdux = new Rxdux({}, new Hooks());
   const mockViews = [
     {
       id: 'eli', 
@@ -49,9 +50,6 @@ describe('The Filters API ', () => {
   it('should have [getPaginationFilters] method', () => assert.typeOf(filtersApi.getPaginationFilters, 'function'));
   it('should have [run] method', () => assert.typeOf(filtersApi.run, 'function'));
   it('should have [resetFilters] method', () => assert.typeOf(filtersApi.resetFilters, 'function'));
-  it('should have [resetPagination] method', () => assert.typeOf(filtersApi.resetPagination, 'function'));
-  it('should have [resetSort] method', () => assert.typeOf(filtersApi.resetSort, 'function'));
-  it('should have [resetAll] method', () => assert.typeOf(filtersApi.resetAll, 'function'));
 
   it('getFilters method should return an Observable that plucks the filters from the current rxdux state', (done) => {   
     let called = false;
