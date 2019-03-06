@@ -54,9 +54,9 @@ export default class{
     
     /**   
      * @examples
-     * fl.loading$.subscribe() => {});
+     * fl.onLoadingChange$.subscribe() => {});
      */
-    loading$ = new Subject();
+    onLoadingChange$ = new Subject();
     
     /**   
      * @examples
@@ -79,7 +79,7 @@ export default class{
      */
     onQueryStringUpdated$ = new Subject();
     onQueryObjectUpdated$ = new Subject();
-    
+
     onDataReplaced$ = new Subject();
     onItemUpdated$ = new Subject();
     onItemsCleared$ = new Subject();

@@ -54,11 +54,12 @@ export default class{
    * @param {*} idProp
    * @returns
    */
-  pushItems(items, idProp = 'id') {
+  pushItems(items, idProp = 'id', totalItems) {
     this.rxdux.dispatch({
       type: PUSH_ITEMS_TO_STORE,
       data: {
-        items: this._transformCollectionToKeyValue(Array.isArray(items) ? items : [items], idProp)
+        items: this._transformCollectionToKeyValue(Array.isArray(items) ? items : [items], idProp),
+        totalItems
       }
     });
 
@@ -72,11 +73,12 @@ export default class{
    * @param {*} idProp
    * @returns
    */
-  replaceItems(items, idProp = 'id') {
+  replaceItems(items, idProp = 'id', totalItems) {
     this.rxdux.dispatch({
       type: REPLACE_ITEMS,
       data: {
-        items: this._transformCollectionToKeyValue(Array.isArray(items) ? items : [items], idProp)
+        items: this._transformCollectionToKeyValue(Array.isArray(items) ? items : [items], idProp),
+        totalItems
       }
     });
 

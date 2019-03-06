@@ -37,7 +37,7 @@ describe('The Hooks ', () => {
   it('should have [onFiltersReset$] Observable property', () => expect(hooks.onFiltersReset$).to.be.instanceOf(Subject));
   it('should have [onPaginationChange$] Observable property', () => expect(hooks.onPaginationChange$).to.be.instanceOf(Subject));
   it('should have [onSort$] Observable property', () => expect(hooks.onSort$).to.be.instanceOf(Subject));
-  it('should have [loading$] Observable property', () => expect(hooks.loading$).to.be.instanceOf(Subject));
+  it('should have [onLoadingChange$] Observable property', () => expect(hooks.onLoadingChange$).to.be.instanceOf(Subject));
   it('should have [onColumnVisibilityChange$] Observable property', () => expect(hooks.onColumnVisibilityChange$).to.be.instanceOf(Subject));
   it('should have [onSetAllColumnsVisible$] Observable property', () => expect(hooks.onSetAllColumnsVisible$).to.be.instanceOf(Subject));
   it('should have [onUnsetAllColumnsVisible$] Observable property', () => expect(hooks.onUnsetAllColumnsVisible$).to.be.instanceOf(Subject));
@@ -75,7 +75,7 @@ describe('The Hooks ', () => {
   testHook('onWorkSpaceCleared$');
   testHook('onPaginationChange$');
   testHook('onSort$');
-  testHook('loading$');
+  testHook('onLoadingChange$');
   testHook('onColumnVisibilityChange$');
   testHook('onSetAllColumnsVisible$');
   testHook('onUnsetAllColumnsVisible$');

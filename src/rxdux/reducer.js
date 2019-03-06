@@ -74,15 +74,33 @@ export default (options, hooks) => (state = initialState, action) => {
       return _state;
     
     case PUSH_ITEMS_TO_STORE:
-      _state.items = {..._state.items, ..._data.items};
+      _state.items = _merge(_state.items, _data.items);
+      _state.loading = false;
+
+      // Update item count
+      _state.views.map(view => {
+        if(view.id === _state.selectedView) {
+          view._pagination.totalItems = _data.totalItems || 0;
+        }
+      });
 
       hooks.onDataPushed$.next({items: _state.items, state, lastState});
+      hooks.onLoadingChange$.next({loading: _state.loading, state, lastState});
       return _state;
     
     case REPLACE_ITEMS:
       _state.items = _data.items;
+      _state.loading = false;
+
+      // Update item count
+      _state.views.map(view => {
+        if(view.id === _state.selectedView) {
+          view._pagination.totalItems = _data.totalItems || 0;
+        }
+      });
 
       hooks.onDataReplaced$.next({items: _state.items, state, lastState});
+      hooks.onLoadingChange$.next({loading: _state.loading, state, lastState});
       return _state;
     
     case UPDATE_ITEM:
@@ -93,6 +111,13 @@ export default (options, hooks) => (state = initialState, action) => {
     
     case CLEAR_ITEMS:
       _state.items = {}; 
+
+      // Update item count
+      _state.views.map(view => {
+        if(view.id === _state.selectedView) {
+          view._pagination = paginationDefault;
+        }
+      });
 
       hooks.onItemsCleared$.next({items: _state.items, state, lastState});
       return _state;
@@ -263,6 +288,10 @@ export default (options, hooks) => (state = initialState, action) => {
 
         return view;
       });
+
+      _state.loading = true;
+      hooks.onLoadingChange$.next({loading: _state.loading, state, lastState});
+
       return _state;
 
     case RESET_FILTERS:
@@ -293,7 +322,10 @@ export default (options, hooks) => (state = initialState, action) => {
         return view;
       });
      
+      _state.loading = true;
+
       hooks.onFiltersReset$.next({state, lastState});
+      hooks.onLoadingChange$.next({loading: _state.loading, state, lastState});
       return _state;
 
     default:
