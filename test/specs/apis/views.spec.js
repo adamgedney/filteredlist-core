@@ -21,12 +21,13 @@ describe('The Views API ', () => {
       "skip": 0,
       "take": 25,
       "totalItems": 0
-    }
+    },
+    filterGroups: []
   };
 
   beforeEach(function() {
-    viewsApi = new ViewsApi(rxdux, optionsExample);
     rxdux.reset();
+    viewsApi = new ViewsApi(rxdux, optionsExample);
   });
 
   it('should instantiate', () => expect(viewsApi).to.be.instanceOf(ViewsApi));
@@ -100,6 +101,7 @@ describe('The Views API ', () => {
 
   it('updateView method should deep update the view in the store then return the full view object for the specified id', (done) => {   
     let called = false;
+
     viewsApi.setViews(mockViews);
     viewsApi.updateView('eli', {columns:[{property: 'id', visible: true}, {property: 'title', visible: false}]})
       .subscribe(d => {

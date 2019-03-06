@@ -55,21 +55,29 @@ describe('The Rxdux Store', () => {
   });
 
   it('selector$ method should return new selected state ONLY when selected state changes', done => {
+    let called = false;
 
     rxdux.dispatch({type: __TEST_RUNNER, data: {testUpdateDummy: 1111}});
     rxdux.dispatch({type: __TEST_RUNNER, data: {testUpdate: 2121}});
     rxdux.dispatch({type: __TEST_RUNNER, data: {testUpdateDummy: 1010}});
 
     rxdux.selector$('testUpdate').subscribe(d => {
-      assert.equal(d, 2121); 
-      done();
+      if(!called) {
+        assert.equal(d, 2121);
+
+        done();called = true;
+      } 
     });
   });
 
   it('reset method should revert the store to initial state', done => {
+    let called = false;
+    
     rxdux.reset().store$.subscribe(state => {
-      assert.equal(state, initialState);
-      done();
+      if(!called) {
+        assert.equal(state, initialState);
+        done();called = true;
+      } 
     })
   });
 });

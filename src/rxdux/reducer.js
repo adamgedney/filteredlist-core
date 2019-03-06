@@ -16,9 +16,13 @@ import {
   UPDATE_VIEW,
   UPDATE_COLUMN_VISIBILTY,
   SET_ALL_COLUMNS_VISIBLE,
-  UNSET_ALL_COLUMNS_VISIBLE
+  UNSET_ALL_COLUMNS_VISIBLE,
+  RUN_FILTER,
+  RESET_FILTERS
 } from '../constants';
 import _merge from 'lodash.merge';
+
+const paginationDefault = {cursor: null, page: 1, skip: 0, take: 25, totalItems: 0};
 
 /** 
  * Curried. Takes the options and hooks, then returns a real reducer; 
@@ -73,11 +77,13 @@ export default (options, hooks) => (state = initialState, action) => {
       return _state;
 
     case SET_VIEWS:
-      // Includes for pagination
+      // Views must be an array, but we can pass a single view in if we want
+      if (!Array.isArray(_data.views)) { _data.views = [_data.views]; }
+
+      // Includes & defaults for views
       _data.views.map(view => {
-        if (!view.hasOwnProperty('_pagination')) {
-          view._pagination = {cursor: null, page: 1, skip: 0, take: 25, totalItems: 0};
-        }
+        if (!view._pagination) { view['_pagination'] = paginationDefault; }
+        if (!view.filterGroups) { view['filterGroups'] = []; }
       });
 
       _state.views = _data.views;
@@ -121,7 +127,7 @@ export default (options, hooks) => (state = initialState, action) => {
 
         return view;
       });
-      // console.log("STATE ", JSON.stringify(state, null, 2), _data);
+
       return _state;
 
     case SET_ALL_COLUMNS_VISIBLE:
@@ -156,6 +162,98 @@ export default (options, hooks) => (state = initialState, action) => {
         return view;
       });
 
+      return _state;
+
+    case RUN_FILTER:
+    // Example full filter command
+    // {
+    //   view : 'eli',
+    //   filters: [{
+    //     id: 'newtons',
+    //     value: ['f144y'],
+    //     operator: null
+    //   }],
+    //   sort: [{column: 'id', operator: 'DESC'}],
+    //   pagination: {skip: 1, take: 25}
+    // }
+
+      _state.views = _state.views.map(view => {
+        if (view.id === _data.view) { // view specific filter runs
+
+          /** FILTERING */
+          if (_data.filters) {
+            _data.filters.forEach(filterCmd => {
+              view.filterGroups.map(group => {
+                group.filters.map(filter => {
+                  if (filter.id === filterCmd.id) {
+
+                    // All filter values should be an array, for consistency.
+                    // We can handle translation on output
+                    if (!Array.isArray(filterCmd.value)) {
+                      filterCmd.value  = [filterCmd.value];
+                    }
+
+                    filter = _merge(filter, filterCmd);
+                  }
+
+                  return filter;
+                })
+
+                return group;
+              })
+            });
+          }
+
+          /** SORT FILTER */
+          if (_data.sort) {
+            view.columns.map(column => {
+              if (column.id === _data.sort.column) {
+                column.sort = _data.sort.operator
+              }
+
+              return column;
+            });
+          }
+
+          /** PAGINATION FILTER */
+          if (_data.pagination) {
+            view._pagination = _merge(view._pagination, _data.pagination);
+          }
+        }
+
+        return view;
+      });
+
+      return _state;
+
+    case RESET_FILTERS:
+      _state.views = _state.views.map(view => {
+
+        /** FILTERING */
+        view.filterGroups.map(group => {
+          group.filters.map(filter => {
+            filter['value']  = null;
+            filter['operator'] = null;
+
+            return filter;
+          });
+
+          return group;
+        })
+
+        /** SORT FILTER */
+        view.columns.map(column => {
+          column['sort'] = null;
+          
+          return column;
+        });
+
+        /** PAGINATION FILTER */
+        view['_pagination'] = paginationDefault;
+
+        return view;
+      });
+     
       return _state;
 
     default:

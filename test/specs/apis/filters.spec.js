@@ -24,11 +24,21 @@ describe('The Filters API ', () => {
     {id: 'eliWithGlasses', columns:[{property: 'id'}, {property: 'title', visible: true}]},
     {id: 'eliWithAPegLeg', columns:[{property: 'id'}, {property: 'title', visible: false}, {property: 'genre', visible: true}]}
   ];
+  const exampleFilterRun = {
+    view : 'eli',
+    filters: [{
+      id: 'newtons',
+      value: ['f144y'],
+      operator: null
+    }],
+    sort: [{column: 'id', operator: 'DESC'}],
+    pagination: {skip: 0, take: 25}
+  };
 
   beforeEach(function() {
     viewsApi = new ViewsApi(rxdux, optionsExample);
     filtersApi = new FiltersApi(rxdux, optionsExample);
-
+ 
     viewsApi.setViews(mockViews)
   });
 
@@ -76,12 +86,38 @@ describe('The Filters API ', () => {
     filtersApi.getPaginationFilters('eli')
       .subscribe(d => {
         if(!called) {
-          console.log('pd ', d);//{cursor: null, page: 1, skip: 0, take: 25, totalItems: 0}
           expect(d).to.eql({cursor: null, page: 1, skip: 0, take: 25, totalItems: 0});
           done();called = true;
         }
       }); 
   });
 
+  it('run method should add a filter command to the store, then return an Observable that plucks the filters from the current rxdux state', done => {   
+    let called = false;
+    assert.ok(filtersApi.run(exampleFilterRun));
+    
+    filtersApi.getFilters({view: 'eli', filterGroup: 'figNewtons'})
+      .subscribe(d => {
+        if(!called) {
+          expect(d[0].value).to.have.members(['f144y']);
+          done();called = true;
+        }
+      });
+  });
 
+  it('resetFilters method should clear all filter values in the store, then return an Observable that plucks the filters from the current rxdux state', done => {   
+    let called = false;
+    assert.ok(filtersApi.run(exampleFilterRun));
+    assert.ok(filtersApi.resetFilters());
+    
+    filtersApi.getFilters({view: 'eli', filterGroup: 'figNewtons'})
+      .subscribe(d => {
+        if(!called) {
+          assert.isNull(d[0].value);
+          assert.isNull(d[0].operator);
+
+          done();called = true;
+        }
+      });
+  });
 });

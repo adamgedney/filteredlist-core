@@ -1,4 +1,6 @@
 import {
+  RUN_FILTER,
+  RESET_FILTERS
 } from '../constants';
 import {mergeMap, map} from 'rxjs/operators';
 import { of } from 'rxjs';
@@ -55,5 +57,33 @@ export default class{
         views.filter(view => ((viewId ? view.id === viewId : true)))[0]
           ._pagination
       )); 
+  }
+
+  /**
+   * Main filter runner
+   *
+   * @param {*} filterData
+   * @returns
+   */
+  run(filterData) {
+    this.rxdux.dispatch({
+      type: RUN_FILTER,
+      data: filterData
+    });
+
+    return true;
+  }
+
+  /**
+   * Reset all filters
+   *
+   * @returns
+   */
+  resetFilters() {
+    this.rxdux.dispatch({
+      type: RESET_FILTERS
+    });
+
+    return true;
   }
 }
