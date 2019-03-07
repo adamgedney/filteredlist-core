@@ -9,12 +9,13 @@ import Hooks from 'Src/hooks';
 
 describe('The Workspace API ', () => {
   let workspaceApi, workspace$;
-  const rxdux = new Rxdux({}, new Hooks());
+  const hooks = new Hooks();
+  const rxdux = new Rxdux({}, hooks);
   const mockEmptyWorkspace = {items:{}};
   const mockItem = {id: 1234, name: 'someone'};
 
   beforeEach(function() {
-    workspaceApi = new WorkspaceApi(rxdux, optionsExample);
+    workspaceApi = new WorkspaceApi(rxdux, optionsExample, {hooks});
   });
 
   it('should instantiate', () => expect(workspaceApi).to.be.instanceOf(WorkspaceApi));

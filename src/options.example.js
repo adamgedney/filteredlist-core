@@ -1,7 +1,7 @@
 export default {
   id: 'test-config-id', // becomes the key to a global ie. window.Filteredlist.instances['test-config-id'] exposes "this"
   writeQueryStringToUrl: true,
-  base64UrlQueryString: true,
+  base64UrlQueryString: false,
   paginationTake: 25,
   views: [
   {

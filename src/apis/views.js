@@ -3,13 +3,14 @@ import {
   SELECT_VIEW,
   UPDATE_VIEW
 } from '../constants';
-import {mergeMap, filter} from 'rxjs/operators';
+import {mergeMap, filter, first, tap} from 'rxjs/operators';
 import { of } from 'rxjs';
 
 export default class{
   constructor(rxdux, options, instance) {
     this.rxdux = rxdux;
     this.namespace = 'views';
+    this.hooks = instance.hooks;
   }
 
   /**
@@ -28,12 +29,20 @@ export default class{
    * @returns
    */
   setViews(views) {
-    return this.rxdux.dispatch({
+    const views$ = this.rxdux.dispatch({
       type: SET_VIEWS,
       data: {
         views: Array.isArray(views) ? views : [views]
       }
     }, 'views');
+
+    return views$
+      .pipe(
+        first(),
+        tap(_views => {
+          this.hooks.onViewsSet$.next({views: _views});
+        })
+      );
   }
 
   /**
@@ -43,10 +52,18 @@ export default class{
    * @returns
    */
   selectView(id) {
-    return this.rxdux.dispatch({
+    const selectedView$ = this.rxdux.dispatch({
       type: SELECT_VIEW,
       data: {id}
     }, 'selectedView');
+
+    return selectedView$
+      .pipe(
+        first(),
+        tap(selectedView => {
+          this.hooks.onSelectedViewChange$.next({selectedView});
+        })
+      );
   }
 
   /**
@@ -93,11 +110,21 @@ export default class{
    * @returns
    */
   updateView(id, view) {
-    this.rxdux.dispatch({
+    const state$ = this.rxdux.dispatch({
       type: UPDATE_VIEW,
       data: {id, view}
-    });
+    }, 'state');
 
-    return this.getViewById(id);
+    return state$
+      .pipe(
+        first(),
+        tap(state => {
+          this.hooks.onViewUpdated$.next({
+            view: state.views.filter(view => view.id === id)[0], 
+            state
+          });
+        }),
+        mergeMap(() => this.getViewById(id))
+      );
   }
 }

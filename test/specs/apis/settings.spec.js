@@ -5,12 +5,14 @@ import optionsExample from 'Src/options.example.js';
 import {of} from 'rxjs';
 import {mergeMap} from 'rxjs/operators';
 import Rxdux from 'Src/rxdux';
+import Hooks from 'Src/hooks';
 import { of } from 'rxjs';
 import Hooks from 'Src/hooks';
 
 describe('The Settings API ', () => {
   let settingsApi, viewsApi;
-  const rxdux = new Rxdux({}, new Hooks());
+  const hooks = new Hooks();
+  const rxdux = new Rxdux({}, hooks);
   const mockViews = [
     {id: 'eli', columns:[{property: 'id'}, {property: 'title', visible: true}]},
     {id: 'eliWithGlasses', columns:[{property: 'id'}, {property: 'title', visible: true}]},
@@ -18,8 +20,8 @@ describe('The Settings API ', () => {
   ];
 
   beforeEach(function() {
-    viewsApi = new ViewsApi(rxdux, optionsExample);
-    settingsApi = new SettingsApi(rxdux, optionsExample);
+    viewsApi = new ViewsApi(rxdux, optionsExample, {hooks});
+    settingsApi = new SettingsApi(rxdux, optionsExample, {hooks});
 
     viewsApi.setViews(mockViews)
   });

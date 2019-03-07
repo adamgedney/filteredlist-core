@@ -1,4 +1,4 @@
-import {reduce, map, pluck} from 'rxjs/operators';
+import {reduce, mergeMap, map, pluck, first, tap} from 'rxjs/operators';
 import {
   PUSH_ITEMS_TO_STORE,
   REPLACE_ITEMS,
@@ -9,6 +9,7 @@ import {
 export default class{
   constructor(rxdux, options, instance) {
     this.rxdux = rxdux;
+    this.hooks = instance.hooks;
   }
 
   /**
@@ -55,15 +56,23 @@ export default class{
    * @returns
    */
   pushItems(items, idProp = 'id', totalItems) {
-    this.rxdux.dispatch({
+    const state$ = this.rxdux.dispatch({
       type: PUSH_ITEMS_TO_STORE,
       data: {
         items: this._transformCollectionToKeyValue(Array.isArray(items) ? items : [items], idProp),
         totalItems
       }
-    });
+    }, 'state');
 
-    return this.getItems(); // use for it's transform pipe
+    return state$
+      .pipe(
+        first(),
+        tap(state => {
+          this.hooks.onDataPushed$.next({items: state.items, state});
+        }),
+        mergeMap(() => this.getItems())
+      );
+
   }
 
   /**
@@ -74,15 +83,22 @@ export default class{
    * @returns
    */
   replaceItems(items, idProp = 'id', totalItems) {
-    this.rxdux.dispatch({
+    const state$ = this.rxdux.dispatch({
       type: REPLACE_ITEMS,
       data: {
         items: this._transformCollectionToKeyValue(Array.isArray(items) ? items : [items], idProp),
         totalItems
       }
-    });
+    }, 'state');
 
-    return this.getItems(); // use for it's transform pipe
+    return state$
+      .pipe(
+        first(),
+        tap(state => {
+          this.hooks.onDataReplaced$.next({items: state.items, state});
+        }),
+        mergeMap(() => this.getItems())
+      );
   }
 
   /**
@@ -93,12 +109,19 @@ export default class{
    * @returns
    */
   updateItem(item, idProp = 'id') {
-    this.rxdux.dispatch({
+    const state$ = this.rxdux.dispatch({
       type: UPDATE_ITEM,
       data: {id: item[idProp], item}
-    });
+    }, 'state');
 
-    return this.getItems(); // use for it's transform pipe
+    return state$
+      .pipe(
+        first(),
+        tap(state => {
+          this.hooks.onItemUpdated$.next({item, items: state.items, state});
+        }),
+        mergeMap(() => this.getItems())
+      );
   }
 
   /**
@@ -107,10 +130,17 @@ export default class{
    * @returns
    */
   clearItems() {
-    this.rxdux.dispatch({
+    const state$ = this.rxdux.dispatch({
       type: CLEAR_ITEMS
-    });
+    }, 'state');
 
-    return this.getItems(); // use for it's transform pipe
+    return state$
+      .pipe(
+        first(),
+        tap(state => {
+          this.hooks.onItemsCleared$.next({items: state.items, state});
+        }),
+        mergeMap(() => this.getItems())
+      );
   }
 }

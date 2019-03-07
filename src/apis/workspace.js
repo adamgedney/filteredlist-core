@@ -3,11 +3,14 @@ import {
   REMOVE_ITEM_FROM_WORKSPACE,
   CLEAR_WORKSPACE
 } from '../constants';
+import {tap, mergeMap, first} from 'rxjs/operators'; 
 
 export default class{
   constructor(rxdux, options, instance) {
     this.rxdux = rxdux;
     this.namespace = 'workspace';
+    this.hooks = instance.hooks;
+
   }
 
   /**
@@ -28,10 +31,18 @@ export default class{
    * @returns
    */
   addItemToWorkspace(item, idProp = 'id') {
-    return this.rxdux.dispatch({
+    const workspace$ = this.rxdux.dispatch({
       type: ADD_ITEM_TO_WORKSPACE,
       data: {id: item[idProp], item}
     }, this.namespace);
+
+    return workspace$
+      .pipe(
+        first(),
+        tap(workspace => {
+          this.hooks.onWorkspaceItemAdded$.next({item, workspace});
+        })
+      );
   }
 
   /** 
@@ -40,10 +51,18 @@ export default class{
    * @returns
    * */
   removeItemFromWorkspace(id) {
-    return this.rxdux.dispatch({
+    const workspace$ = this.rxdux.dispatch({
       type: REMOVE_ITEM_FROM_WORKSPACE,
       data: {id}
     }, this.namespace);
+
+    return workspace$
+      .pipe(
+        first(),
+        tap(workspace => {
+          this.hooks.onWorkspaceItemRemoved$.next({item: id, workspace});
+        })
+      );
   }
 
   /**
@@ -52,8 +71,16 @@ export default class{
    * @returns
    */
   clearWorkspace() {
-    return this.rxdux.dispatch({
+    const workspace$ = this.rxdux.dispatch({
       type: CLEAR_WORKSPACE
     }, this.namespace);
+
+    return workspace$
+      .pipe(
+        first(),
+        tap(workspace => {
+          this.hooks.onWorkSpaceCleared$.next({workspace});
+        })
+      );
   }
 }

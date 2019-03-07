@@ -16,6 +16,43 @@ export default class{
      */
     onFiltersReset$ = new Subject();
 
+        /**   
+     * @examples
+     * fl.onPaginationChange$.subscribe() => {});
+     */
+    onPaginationChange$ = new Subject();
+    
+    /**   
+     * @examples
+     * fl.onSort$.subscribe() => {});
+     */
+    onSort$ = new Subject();
+
+    /**  
+     * @examples
+     * fl.onFilterChange$.subscribe(() => {});
+     * fl.onFilterChange$.next();
+     */
+    _onFilterChange$ = new Subject();
+    
+        /**   
+     * @examples
+     * fl.onFiltersReset$.subscribe() => {});
+     */
+    _onFiltersReset$ = new Subject();
+
+        /**   
+     * @examples
+     * fl.onPaginationChange$.subscribe() => {});
+     */
+    _onPaginationChange$ = new Subject();
+    
+    /**   
+     * @examples
+     * fl.onSort$.subscribe() => {});
+     */
+    _onSort$ = new Subject();
+
     /**   
      * @examples
      * fl.onWorkspaceItemAdded$.subscribe() => {});
@@ -39,18 +76,6 @@ export default class{
      *
      */
     onStoreReset$ = new Subject();
-    
-    /**   
-     * @examples
-     * fl.onPaginationChange$.subscribe() => {});
-     */
-    onPaginationChange$ = new Subject();
-    
-    /**   
-     * @examples
-     * fl.onSort$.subscribe() => {});
-     */
-    onSort$ = new Subject();
     
     /**   
      * @examples

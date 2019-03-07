@@ -8,8 +8,9 @@ import initialState from  './initialState';
 
 export default class{
   constructor(instance = {}, hooks) {
+    this.hooks = hooks;
     this.instance = instance;
-    this.reducer = reducer(instance.options, hooks);
+    this.reducer = reducer(instance.options, this.hooks);
     this.store = createStore(this.reducer);
     this.store$ = new BehaviorSubject(initialState);
 
@@ -31,7 +32,9 @@ export default class{
   dispatch(action = {}, selector) {
     this.store.dispatch(action);
 
-    if (selector) {
+    if (selector === 'state') {
+      return this.store$;
+    } else if (selector) {
       return this.selector$(selector);
     }
   }
@@ -69,6 +72,9 @@ export default class{
       type: RESET,
       data: initialState
     });
+
+    this.hooks.onStoreReset$.next({initialState});
+
     return {...this, initialState};
   }
 }

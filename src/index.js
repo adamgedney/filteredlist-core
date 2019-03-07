@@ -24,6 +24,8 @@ export default class{
     this.data = new Data(this.rxdux, this.options, this); 
     this.filters = new Filters(this.rxdux, this.options, this);
     this.views = new Views(this.rxdux, this.options, this);
+
+    this._onPageLoad();
   }
 
   /**
@@ -41,5 +43,34 @@ export default class{
       });
 
     return hooks;
+  }
+
+  /**
+   * Setup page load listeners to handle query string processing
+   *
+   */
+  _onPageLoad(){
+  //   if (document.readyState == "complete") {
+  //     alert("Your page is loaded");
+  // }
+  // Return Value: A String, representing the status of the current document.
+  
+  // One of five values:
+  
+  // uninitialized - Has not started loading yet
+  // loading - Is loading
+  // loaded - Has been loaded
+  // interactive - Has loaded enough and the user can interact with it
+  // complete - Fully loaded
+  }
+
+  /**
+   * Main procedures for building query objects and query strings
+   *
+   */
+  _onFilterChange() {
+    //onFilterChange$, onSort$, onPaginationChange$ 
+
+    // onLoading Change start can be our trigger to build the query string and object.
   }
 }

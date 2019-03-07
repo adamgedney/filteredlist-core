@@ -1,4 +1,5 @@
 export default {
+  filtersObject: {},
   queryObject: {},
   queryString: '',
   items: {},

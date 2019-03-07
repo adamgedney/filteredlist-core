@@ -3,10 +3,12 @@ import {
   UPDATE_QUERY_STRING,
   UPDATE_QUERY_OBJECT
 } from '../constants';
+import {first, tap} from 'rxjs/operators';
 
 export default class{
   constructor(rxdux, options, instance, history) {
     this.rxdux = rxdux;
+    this.hooks = instance.hooks;
 
     /** 
      * Memory History is used by the test runner as there's no DOM. 
@@ -24,27 +26,7 @@ export default class{
    * @private
    */
   _makeQueryObject(filters) {
-    return filters
-      .map(filter => ({ [filter.id]: filter.range || filter.value }))
-      .reduce((sum, query) => {
-        const key = Object.keys(query)[0];
-
-        // Check if the property to filter on exists already;
-        // Then check if it's an array.
-        // make it an array and push the value
-        if (sum.hasOwnProperty(key) && !(key.indexOf('sort-') > -1)) {
-          if (Array.isArray(sum[key])) {
-            sum[key].push(query[key]);// Add the new value
-          } else {
-            sum[key] = [sum[key]];// Extract the string value and transform to an array
-            sum[key].push(query[key]);//Add the new value
-          }
-        } else {
-          sum[key] = query[key];// First run, add the string
-        }
-        // return the mutated object
-        return sum;
-      }, {});
+    return makeQueryObject(filters);
   }
 
   /**
@@ -52,49 +34,7 @@ export default class{
    * @param queryObject
    */
   _makeQueryString(queryObject) {
-
-    // Remove anything with a null value
-    // Handles single values and range values
-    Object.keys(queryObject)
-      .forEach((key) => (queryObject[key] == null
-        || ((queryObject[key].hasOwnProperty('start') && queryObject[key].hasOwnProperty('end'))
-          && (queryObject[key].start == null && queryObject[key].end == null)))
-        && delete queryObject[key]);
-
-      let queryString = 
-      Object.keys(queryObject)
-        .map(k => {
-          let attribute = k,
-            value = queryObject[k],
-            tmp_query = '';
-
-          if (value.hasOwnProperty('start') && value.hasOwnProperty('end')) {
-            tmp_query = `${attribute}--start=${value.start}&${attribute}--end=${value.end}`;
-          } else {
-            tmp_query = `${attribute}=${value}`;
-          }
-
-          return tmp_query;
-        })
-        .reduce((sum, query) => {
-
-          //Handle missing &
-          if (query.charAt(0) !== '&') {
-            query = '&' + query;
-          }
-
-          // Combine query strings
-          return sum + query;
-        }, '');
-
-    // Handle the ? character at the beginning of the string
-    if (queryString.charAt(0) === '&') {
-      queryString = queryString.replace(/^&/, '?');
-    } else if (queryString.charAt(0) !== '&' || queryString.charAt(0) !== '?') {
-      queryString = '?' + queryString;
-    }
-
-    return queryString;
+    return makeQueryString(queryObject);
   }
 
   /**
@@ -104,10 +44,18 @@ export default class{
    * @returns
    */
   _writeQueryStringToStore(queryString) {
-    return this.rxdux.dispatch({
+    const queryString$ = this.rxdux.dispatch({
         type: UPDATE_QUERY_STRING,
         data: {queryString}
       }, 'queryString');
+
+    return queryString$
+      .pipe(
+        first(),
+        tap(queryString => {
+          this.hooks.onQueryStringUpdated$.next({queryString});
+        })
+      );
   }
 
   /**
@@ -117,10 +65,18 @@ export default class{
    * @returns
    */
   _writeQueryObjectToStore(queryObject) {
-    return this.rxdux.dispatch({
+    const queryObject$ = this.rxdux.dispatch({
         type: UPDATE_QUERY_OBJECT,
         data: {queryObject}
       }, 'queryObject');
+
+    return queryObject$
+      .pipe(
+        first(),
+        tap(queryObject => {
+          this.hooks.onQueryObjectUpdated$.next({queryObject});
+        })
+      );
   }
 
   /**
@@ -349,3 +305,83 @@ export default class{
     return `${this.history.location.pathname}${this.history.location.search}`;
   }
 }
+
+  /**
+   * Makes the query object to be translated according to output type specification
+   * @param filters
+   * @returns {*}
+   * @private
+   */
+  export function makeQueryObject(filters) {
+    return filters
+      .map(filter => ({ [filter.id]: filter.range || filter.value }))
+      .reduce((sum, query) => {
+        const key = Object.keys(query)[0];
+
+        // Check if the property to filter on exists already;
+        // Then check if it's an array.
+        // make it an array and push the value
+        if (sum.hasOwnProperty(key) && !(key.indexOf('sort-') > -1)) {
+          if (Array.isArray(sum[key])) {
+            sum[key].push(query[key]);// Add the new value
+          } else {
+            sum[key] = [sum[key]];// Extract the string value and transform to an array
+            sum[key].push(query[key]);//Add the new value
+          }
+        } else {
+          sum[key] = query[key];// First run, add the string
+        }
+        // return the mutated object
+        return sum;
+      }, {});
+  };
+
+  /**
+   * Returns the query parameter based on state.filters
+   * @param queryObject
+   */
+  export function makeQueryString(queryObject) {
+
+    // Remove anything with a null value
+    // Handles single values and range values
+    Object.keys(queryObject)
+      .forEach((key) => (queryObject[key] == null
+        || ((queryObject[key].hasOwnProperty('start') && queryObject[key].hasOwnProperty('end'))
+          && (queryObject[key].start == null && queryObject[key].end == null)))
+        && delete queryObject[key]);
+
+      let queryString = 
+      Object.keys(queryObject)
+        .map(k => {
+          let attribute = k,
+            value = queryObject[k],
+            tmp_query = '';
+
+          if (value.hasOwnProperty('start') && value.hasOwnProperty('end')) {
+            tmp_query = `${attribute}--start=${value.start}&${attribute}--end=${value.end}`;
+          } else {
+            tmp_query = `${attribute}=${value}`;
+          }
+
+          return tmp_query;
+        })
+        .reduce((sum, query) => {
+
+          //Handle missing &
+          if (query.charAt(0) !== '&') {
+            query = '&' + query;
+          }
+
+          // Combine query strings
+          return sum + query;
+        }, '');
+
+    // Handle the ? character at the beginning of the string
+    if (queryString.charAt(0) === '&') {
+      queryString = queryString.replace(/^&/, '?');
+    } else if (queryString.charAt(0) !== '&' || queryString.charAt(0) !== '?') {
+      queryString = '?' + queryString;
+    }
+
+    return queryString;
+  };

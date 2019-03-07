@@ -7,7 +7,8 @@ import { stringify } from 'querystring';
 
 describe('The Views API ', () => {
   let viewsApi;
-  const rxdux = new Rxdux({}, new Hooks());
+  const hooks = new Hooks();
+  const rxdux = new Rxdux({}, hooks);
   const mockViews = [
     {id: 'eli', columns:[{property: 'id', visible: true}, {property: 'title', visible: false}]},
     {id: 'eliWithGlasses', columns:[{property: 'id'}, {property: 'title', visible: true}]},
@@ -28,7 +29,7 @@ describe('The Views API ', () => {
 
   beforeEach(function() {
     rxdux.reset();
-    viewsApi = new ViewsApi(rxdux, optionsExample);
+    viewsApi = new ViewsApi(rxdux, optionsExample, {hooks});
   });
 
   it('should instantiate', () => expect(viewsApi).to.be.instanceOf(ViewsApi));

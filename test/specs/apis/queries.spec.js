@@ -8,7 +8,8 @@ import Hooks from 'Src/hooks';
 
 describe('The Queries API ', () => {
   let history, queriesApi;
-  const rxdux = new Rxdux({}, new Hooks());
+  const hooks = new Hooks();
+  const rxdux = new Rxdux({}, hooks);
   let mockUrl = '/';
   let mockFullUrl = 'https://iliketurtles.com/?state=sdfhw458hwreojbd&view=test';
   let queryObject = {
@@ -36,7 +37,7 @@ describe('The Queries API ', () => {
 
   beforeEach(function() {
     history = createMemoryHistory();
-    queriesApi = new QueriesApi(rxdux, optionsExample, null, history);
+    queriesApi = new QueriesApi(rxdux, optionsExample, {hooks}, history);
   });
 
   it('should instantiate', () => expect(queriesApi).to.be.instanceOf(QueriesApi));

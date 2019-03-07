@@ -11,12 +11,26 @@ describe('The Hooks ', () => {
     hooks = new Hooks();
 
     _callbackData = {items: []};
+    // _onFilterChangePayload = {
+    //   filterId: 'role', 
+    //   filterValue: ['sdgfkgj2345', 'sdgfkgj2345a', 'sdgfkgj2345f'], 
+    //   queryObject: {'users': ['sdgfkgj2345', 'sdgfkgj2345a', 'sdgfkgj2345f']},
+    //   callback: data => expect(data).to.eql(_callbackData)
+    // };
     _onFilterChangePayload = {
-      filterId: 'role', 
-      filterValue: ['sdgfkgj2345', 'sdgfkgj2345a', 'sdgfkgj2345f'], 
-      queryObject: {'users': ['sdgfkgj2345', 'sdgfkgj2345a', 'sdgfkgj2345f']},
-      callback: data => expect(data).to.eql(_callbackData)
-    };
+      change: {
+        view : 'eli',
+        filters: [{
+          id: 'newtons',
+          value: ['f144y'],
+          operator: null
+        }],
+        sort: [{column: 'id', operator: 'DESC'}],
+        pagination: {skip: 1, take: 25}
+      },
+      state: {},
+      lastState: {}
+    }
   });
 
   it('should instantiate', () => expect(hooks).to.be.instanceOf(Hooks));
@@ -31,12 +45,17 @@ describe('The Hooks ', () => {
   });
   
   it('should have [onFilterChange$] Observable property', () => expect(hooks.onFilterChange$).to.be.instanceOf(Subject));
-  it('should have [onWorkspaceItemAdded$] Observable property', () => expect(hooks.onWorkspaceItemAdded$).to.be.instanceOf(Subject));
-  it('should have [onWorkspaceItemRemoved$] Observable property', () => expect(hooks.onWorkspaceItemRemoved$).to.be.instanceOf(Subject));
-  it('should have [onWorkSpaceCleared$] Observable property', () => expect(hooks.onWorkSpaceCleared$).to.be.instanceOf(Subject));
   it('should have [onFiltersReset$] Observable property', () => expect(hooks.onFiltersReset$).to.be.instanceOf(Subject));
   it('should have [onPaginationChange$] Observable property', () => expect(hooks.onPaginationChange$).to.be.instanceOf(Subject));
   it('should have [onSort$] Observable property', () => expect(hooks.onSort$).to.be.instanceOf(Subject));
+  it('should have [_onFilterChange$] Observable property', () => expect(hooks._onFilterChange$).to.be.instanceOf(Subject));
+  it('should have [_onFiltersReset$] Observable property', () => expect(hooks._onFiltersReset$).to.be.instanceOf(Subject));
+  it('should have [_onPaginationChange$] Observable property', () => expect(hooks._onPaginationChange$).to.be.instanceOf(Subject));
+  it('should have [_onSort$] Observable property', () => expect(hooks._onSort$).to.be.instanceOf(Subject));
+
+  it('should have [onWorkspaceItemAdded$] Observable property', () => expect(hooks.onWorkspaceItemAdded$).to.be.instanceOf(Subject));
+  it('should have [onWorkspaceItemRemoved$] Observable property', () => expect(hooks.onWorkspaceItemRemoved$).to.be.instanceOf(Subject));
+  it('should have [onWorkSpaceCleared$] Observable property', () => expect(hooks.onWorkSpaceCleared$).to.be.instanceOf(Subject));
   it('should have [onLoadingChange$] Observable property', () => expect(hooks.onLoadingChange$).to.be.instanceOf(Subject));
   it('should have [onColumnVisibilityChange$] Observable property', () => expect(hooks.onColumnVisibilityChange$).to.be.instanceOf(Subject));
   it('should have [onSetAllColumnsVisible$] Observable property', () => expect(hooks.onSetAllColumnsVisible$).to.be.instanceOf(Subject));
@@ -61,20 +80,26 @@ describe('The Hooks ', () => {
         hooks[name].next(_onFilterChangePayload);
       });
     
-      it('callback property should be callable from subscriber', () => {
-        hooks[name].subscribe(d => d.callback(_callbackData));
-        hooks[name].next(_onFilterChangePayload);
-      });
+      // it('callback property should be callable from subscriber', () => {
+      //   hooks[name].subscribe(d => d.callback(_callbackData));
+      //   hooks[name].next(_onFilterChangePayload);
+      // });
     });
   }
 
   testHook('onFilterChange$'); 
   testHook('onFiltersReset$'); 
+  testHook('onPaginationChange$');
+  testHook('onSort$');
+  // testHook('_onFilterChange$'); 
+  // testHook('_onFiltersReset$'); 
+  // testHook('_onPaginationChange$');
+  // testHook('_onSort$');
+
   testHook('onWorkspaceItemAdded$');
   testHook('onWorkspaceItemRemoved$');
   testHook('onWorkSpaceCleared$');
-  testHook('onPaginationChange$');
-  testHook('onSort$');
+
   testHook('onLoadingChange$');
   testHook('onColumnVisibilityChange$');
   testHook('onSetAllColumnsVisible$');

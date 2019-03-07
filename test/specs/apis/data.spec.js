@@ -6,7 +6,8 @@ import Hooks from 'Src/hooks';
 
 describe('The Data API ', () => {
   let dataApi;
-  const rxdux = new Rxdux({}, new Hooks());
+  const hooks = new Hooks();
+  const rxdux = new Rxdux({}, hooks);
   const mockEmptyItems = [];
   const mockItemsArray = [
     {id: 0, name: 'Eli'},
@@ -25,7 +26,7 @@ describe('The Data API ', () => {
   ];
 
   beforeEach(function() {
-    dataApi = new DataApi(rxdux, optionsExample);
+    dataApi = new DataApi(rxdux, optionsExample, {hooks});
   });
 
   it('should instantiate', () => expect(dataApi).to.be.instanceOf(DataApi));

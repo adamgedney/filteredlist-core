@@ -1,7 +1,8 @@
 import fsFileTree from 'fs-file-tree';
 import fs         from 'fs';
 
-
+// const testSingleFile = 'filters.spec.js';
+const testSingleFile = false;
 const testFolder   = 'test/specs';
 
 buildTree(fsFileTree.sync(process.cwd() + '/' + testFolder), testFolder);
@@ -19,7 +20,7 @@ function _buildTree(tree, root, path) {
                 describe(item + '/', () => {
                     _buildTree(tree[item], root, path + item + '/');
                 });
-            } else if(itemStats.isFile()) {
+            } else if(itemStats.isFile() && (testSingleFile ? item === testSingleFile : true)) {
                 describe(item, () => {
                     let file = require('./specs' + path + item);
 
