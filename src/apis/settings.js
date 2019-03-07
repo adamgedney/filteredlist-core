@@ -40,16 +40,17 @@ export default class{
     const state$ = this.rxdux.dispatch({
       type: UPDATE_COLUMN_VISIBILTY,
       data: {id, updates}
-    }, 'state');
+    }, 'state')
+    .pipe(
+      first(),
+      tap(state => {
+        this.hooks.onColumnVisibilityChange$.next({updates: 'unset-all', views: state.views, state});
+      }),
+      mergeMap(state => this.getColumnVisibility(id))
+    );
 
-    return state$
-      .pipe(
-        first(),
-        tap(state => {
-          this.hooks.onColumnVisibilityChange$.next({updates: 'unset-all', views: state.views, state});
-        }),
-        mergeMap(state => this.getColumnVisibility(id))
-      )
+    state$.subscribe(()=>{});
+    return state$;
   }
 
   /**
@@ -62,17 +63,18 @@ export default class{
     const state$ = this.rxdux.dispatch({
       type: SET_ALL_COLUMNS_VISIBLE,
       data: {id}
-    }, 'state');
+    }, 'state')
+    .pipe(
+      first(),
+      tap(state => {
+        this.hooks.onColumnVisibilityChange$.next({updates: 'set-all', views: state.views, state});
+        this.hooks.onSetAllColumnsVisible$.next({views: state.views, state});
+      }),
+      mergeMap(state => this.getColumnVisibility(id))
+    );
 
-    return state$
-      .pipe(
-        first(),
-        tap(state => {
-          this.hooks.onColumnVisibilityChange$.next({updates: 'set-all', views: state.views, state});
-          this.hooks.onSetAllColumnsVisible$.next({views: state.views, state});
-        }),
-        mergeMap(state => this.getColumnVisibility(id))
-      )
+    state$.subscribe(()=>{});
+    return state$;
   }
 
   /**
@@ -85,16 +87,17 @@ export default class{
     const state$ = this.rxdux.dispatch({
       type: UNSET_ALL_COLUMNS_VISIBLE,
       data: {id}
-    }, 'state');
+    }, 'state')
+    .pipe(
+      first(),
+      tap(state => {
+        this.hooks.onColumnVisibilityChange$.next({updates: 'unset-all', views: state.views, state});
+        this.hooks.onUnsetAllColumnsVisible$.next({views: state.views, state});
+      }),
+      mergeMap(state => this.getColumnVisibility(id))
+    );
 
-    return state$
-      .pipe(
-        first(),
-        tap(state => {
-          this.hooks.onColumnVisibilityChange$.next({updates: 'unset-all', views: state.views, state});
-          this.hooks.onUnsetAllColumnsVisible$.next({views: state.views, state});
-        }),
-        mergeMap(state => this.getColumnVisibility(id))
-      )
+    state$.subscribe(()=>{});
+    return state$;
   }
 }

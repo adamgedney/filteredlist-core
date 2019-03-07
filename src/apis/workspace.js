@@ -34,15 +34,16 @@ export default class{
     const workspace$ = this.rxdux.dispatch({
       type: ADD_ITEM_TO_WORKSPACE,
       data: {id: item[idProp], item}
-    }, this.namespace);
+    }, this.namespace)
+    .pipe(
+      first(),
+      tap(workspace => {
+        this.hooks.onWorkspaceItemAdded$.next({item, workspace});
+      })
+    );
 
-    return workspace$
-      .pipe(
-        first(),
-        tap(workspace => {
-          this.hooks.onWorkspaceItemAdded$.next({item, workspace});
-        })
-      );
+    workspace$.subscribe(() => {});
+    return workspace$;
   }
 
   /** 
@@ -54,15 +55,16 @@ export default class{
     const workspace$ = this.rxdux.dispatch({
       type: REMOVE_ITEM_FROM_WORKSPACE,
       data: {id}
-    }, this.namespace);
+    }, this.namespace)
+    .pipe(
+      first(),
+      tap(workspace => {
+        this.hooks.onWorkspaceItemRemoved$.next({item: id, workspace});
+      })
+    );
 
-    return workspace$
-      .pipe(
-        first(),
-        tap(workspace => {
-          this.hooks.onWorkspaceItemRemoved$.next({item: id, workspace});
-        })
-      );
+    workspace$.subscribe(() => {});
+    return workspace$;
   }
 
   /**
@@ -73,14 +75,15 @@ export default class{
   clearWorkspace() {
     const workspace$ = this.rxdux.dispatch({
       type: CLEAR_WORKSPACE
-    }, this.namespace);
+    }, this.namespace)
+    .pipe(
+      first(),
+      tap(workspace => {
+        this.hooks.onWorkSpaceCleared$.next({workspace});
+      })
+    );
 
-    return workspace$
-      .pipe(
-        first(),
-        tap(workspace => {
-          this.hooks.onWorkSpaceCleared$.next({workspace});
-        })
-      );
+    workspace$.subscribe(() => {});
+    return workspace$;
   }
 }

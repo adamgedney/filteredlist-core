@@ -34,15 +34,16 @@ export default class{
       data: {
         views: Array.isArray(views) ? views : [views]
       }
-    }, 'views');
+    }, 'views')
+    .pipe(
+      first(),
+      tap(_views => {
+        this.hooks.onViewsSet$.next({views: _views});
+      })
+    );
 
-    return views$
-      .pipe(
-        first(),
-        tap(_views => {
-          this.hooks.onViewsSet$.next({views: _views});
-        })
-      );
+    views$.subscribe(() => {});
+    return views$;
   }
 
   /**
@@ -55,15 +56,16 @@ export default class{
     const selectedView$ = this.rxdux.dispatch({
       type: SELECT_VIEW,
       data: {id}
-    }, 'selectedView');
+    }, 'selectedView')
+    .pipe(
+      first(),
+      tap(selectedView => {
+        this.hooks.onSelectedViewChange$.next({selectedView});
+      })
+    );
 
-    return selectedView$
-      .pipe(
-        first(),
-        tap(selectedView => {
-          this.hooks.onSelectedViewChange$.next({selectedView});
-        })
-      );
+    selectedView$.subscribe(() => {});
+    return selectedView$;
   }
 
   /**
@@ -113,18 +115,19 @@ export default class{
     const state$ = this.rxdux.dispatch({
       type: UPDATE_VIEW,
       data: {id, view}
-    }, 'state');
+    }, 'state')
+    .pipe(
+      first(),
+      tap(state => {
+        this.hooks.onViewUpdated$.next({
+          view: state.views.filter(view => view.id === id)[0], 
+          state
+        });
+      }),
+      mergeMap(() => this.getViewById(id))
+    );
 
-    return state$
-      .pipe(
-        first(),
-        tap(state => {
-          this.hooks.onViewUpdated$.next({
-            view: state.views.filter(view => view.id === id)[0], 
-            state
-          });
-        }),
-        mergeMap(() => this.getViewById(id))
-      );
+    state$.subscribe(() => {});
+    return state$;
   }
 }

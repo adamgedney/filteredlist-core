@@ -62,16 +62,17 @@ export default class{
         items: this._transformCollectionToKeyValue(Array.isArray(items) ? items : [items], idProp),
         totalItems
       }
-    }, 'state');
-
-    return state$
-      .pipe(
-        first(),
-        tap(state => {
-          this.hooks.onDataPushed$.next({items: state.items, state});
-        }),
-        mergeMap(() => this.getItems())
-      );
+    }, 'state')
+    .pipe(
+      first(),
+      tap(state => {
+        this.hooks.onDataPushed$.next({items: state.items, state});
+      }),
+      mergeMap(() => this.getItems())
+    );
+    
+    state$.subscribe(()=>{});
+    return state$;
 
   }
 
@@ -89,16 +90,17 @@ export default class{
         items: this._transformCollectionToKeyValue(Array.isArray(items) ? items : [items], idProp),
         totalItems
       }
-    }, 'state');
+    }, 'state')
+    .pipe(
+      first(),
+      tap(state => {
+        this.hooks.onDataReplaced$.next({items: state.items, state});
+      }),
+      mergeMap(() => this.getItems())
+    );
 
-    return state$
-      .pipe(
-        first(),
-        tap(state => {
-          this.hooks.onDataReplaced$.next({items: state.items, state});
-        }),
-        mergeMap(() => this.getItems())
-      );
+    state$.subscribe(() => {});
+    return state$;
   }
 
   /**
@@ -112,16 +114,17 @@ export default class{
     const state$ = this.rxdux.dispatch({
       type: UPDATE_ITEM,
       data: {id: item[idProp], item}
-    }, 'state');
+    }, 'state')
+    .pipe(
+      first(),
+      tap(state => {
+        this.hooks.onItemUpdated$.next({item, items: state.items, state});
+      }),
+      mergeMap(() => this.getItems())
+    );
 
+    state$.subscribe(()=>{});
     return state$
-      .pipe(
-        first(),
-        tap(state => {
-          this.hooks.onItemUpdated$.next({item, items: state.items, state});
-        }),
-        mergeMap(() => this.getItems())
-      );
   }
 
   /**
@@ -132,15 +135,16 @@ export default class{
   clearItems() {
     const state$ = this.rxdux.dispatch({
       type: CLEAR_ITEMS
-    }, 'state');
+    }, 'state')
+    .pipe(
+      first(),
+      tap(state => {
+        this.hooks.onItemsCleared$.next({items: state.items, state});
+      }),
+      mergeMap(() => this.getItems())
+    );
 
+    state$.subscribe(()=>{});
     return state$
-      .pipe(
-        first(),
-        tap(state => {
-          this.hooks.onItemsCleared$.next({items: state.items, state});
-        }),
-        mergeMap(() => this.getItems())
-      );
   }
 }

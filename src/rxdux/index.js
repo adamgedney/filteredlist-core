@@ -32,8 +32,8 @@ export default class{
   dispatch(action = {}, selector) {
     this.store.dispatch(action);
 
-    if (selector === 'state') {
-      return this.store$;
+    if (selector && selector === 'state') {
+      return of(this.store.getState());
     } else if (selector) {
       return this.selector$(selector);
     }

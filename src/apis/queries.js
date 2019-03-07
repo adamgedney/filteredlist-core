@@ -47,15 +47,16 @@ export default class{
     const queryString$ = this.rxdux.dispatch({
         type: UPDATE_QUERY_STRING,
         data: {queryString}
-      }, 'queryString');
-
-    return queryString$
+      }, 'queryString')
       .pipe(
         first(),
         tap(queryString => {
           this.hooks.onQueryStringUpdated$.next({queryString});
         })
       );
+
+    queryString$.subscribe(() => {});
+    return queryString$;
   }
 
   /**
@@ -68,15 +69,16 @@ export default class{
     const queryObject$ = this.rxdux.dispatch({
         type: UPDATE_QUERY_OBJECT,
         data: {queryObject}
-      }, 'queryObject');
-
-    return queryObject$
+      }, 'queryObject')
       .pipe(
         first(),
         tap(queryObject => {
           this.hooks.onQueryObjectUpdated$.next({queryObject});
         })
       );
+
+      queryObject$.subscribe(() => {});
+      return queryObject$;
   }
 
   /**

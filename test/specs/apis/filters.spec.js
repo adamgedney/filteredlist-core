@@ -136,19 +136,19 @@ describe('The Filters API ', () => {
       });
   });
 
-  // it('run method should trigger the _onFilterChange$ hook to fire', done => {   
-  //   let called = false;
+  it('run method should trigger the _onFilterChange$ hook to fire', done => {   
+    let called = false;
     
-  //   filtersApi.hooks._onFilterChange$
-  //     .subscribe(d => {
-  //       if(!called) {
-  //         expect(d).to.have.keys(['change', 'state', 'lastState']);
-  //         done();called = true;
-  //       }
-  //     });
+    hooks._onFilterChange$
+      .subscribe(d => {
+        if(!called) {
+          expect(d).to.have.keys(['change', 'state', 'lastState']);
+          done();called = true;
+        }
+      });
 
-  //     assert.ok(filtersApi.run(exampleFilterRun));
-  // });
+      assert.ok(filtersApi.run(exampleFilterRun));
+  });
 
   // it('run method should trigger the onFilterChange$ hook to fire, and the queryObject and queryString should be present in the state', done => {   
   //   let called = false;

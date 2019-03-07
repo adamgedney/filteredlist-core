@@ -126,19 +126,21 @@ export default class{
     const state$ = this.rxdux.dispatch({
       type: RUN_FILTER,
       data: filterData
-    }, 'state');
+    }, 'state')
+    .pipe(
+      // first(),
+      tap(state => {
+        this.hooks.onLoadingChange$.next({loading: true, state});
+        console.log('RUN STATE ', state);
+        if (filterData.sort) { this.hooks._onSort$.next({view: filterData.view, sort: filterData.sort, state}); }
+        if (filterData.pagination) { this.hooks._onPaginationChange$.next({view: filterData.view, pagination: filterData.pagination, state}); }
+        if (filterData.filters) { this.hooks._onFilterChange$.next({change: filterData, state}); }
+      })
+    );
+
+    state$.subscribe(() => {});// ensure a hook run
 
     return state$
-      .pipe(
-        first(),
-        tap(state => {
-          this.hooks.onLoadingChange$.next({loading: true, state});
-
-          if (filterData.sort) { this.hooks._onSort$.next({view: filterData.view, sort: filterData.sort, state}); }
-          if (filterData.pagination) { this.hooks._onPaginationChange$.next({view: filterData.view, pagination: filterData.pagination, state}); }
-          if (filterData.filters) { this.hooks._onFilterChange$.next({change: filterData, state}); }
-        })
-      );
   }
 
   /**
