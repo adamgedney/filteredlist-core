@@ -19,20 +19,13 @@ describe('The Queries API ', () => {
   const hooks = new Hooks();
   const rxdux = new Rxdux({}, hooks);
   let mockUrl = '/';
-  let mockFullUrl = 'https://iliketurtles.com/?state=sdfhw458hwreojbd&view=test';
+  let mockFullUrl = 'https://iliketurtles.com/?state=87fc3814-4cb9-43a5-b723-63ecebd65c5a,cdc3d520-8b74-46ac-9f4c-8f27d04ab49f&view=eli';
   let queryObject = {
     state: ["cbd0a696-2b4f-4469-85d1-f7027345e3e0"],
     genres: ["87fc3814-4cb9-43a5-b723-63ecebd65c5a", "cdc3d520-8b74-46ac-9f4c-8f27d04ab49f"],
     languages: ["9d5741e1-b482-4027-8c57-45193073ef12"],
     entityType: ["olyplat-entity-movie"],
     "sort-primaryGenre": "ASC",
-    // sort: { primaryGenre: 'ASC' }
-  };
-  let queryObjectLessSort = {
-    state: ["cbd0a696-2b4f-4469-85d1-f7027345e3e0"],
-    genres: ["87fc3814-4cb9-43a5-b723-63ecebd65c5a", "cdc3d520-8b74-46ac-9f4c-8f27d04ab49f"],
-    languages: ["9d5741e1-b482-4027-8c57-45193073ef12"],
-    entityType: ["olyplat-entity-movie"]
   };
   const base64Regex = /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/;
   const _mockBuiltQO = {
@@ -190,13 +183,13 @@ describe('The Queries API ', () => {
   it('_pickFromUrl method should return an object of data picked from the url query string', () => {
     history.replace(mockFullUrl);
 
-    expect(queriesApi._pickFromUrl('state')).to.eql({state: 'sdfhw458hwreojbd'});
+    expect(queriesApi._pickFromUrl('state')).to.eql({state: '87fc3814-4cb9-43a5-b723-63ecebd65c5a,cdc3d520-8b74-46ac-9f4c-8f27d04ab49f'});
   });
 
   it('_getViewParamFromURL method should return an object of view data picked from the url query string', () => {
     history.replace(mockFullUrl);
 
-    assert.equal(queriesApi._getViewParamFromURL(), 'test');
+    assert.equal(queriesApi._getViewParamFromURL(), 'eli');
   });
 
   it('_base64 method should return a base64 encoded queryString', () => {

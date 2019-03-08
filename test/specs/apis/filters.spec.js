@@ -5,11 +5,13 @@ import optionsExample from 'Src/options.example.js';
 import Rxdux from 'Src/rxdux';
 import Hooks from 'Src/hooks';
 import Queries from 'Src/apis/queries';
+import DataApi from 'Src/apis/data';
 import createMemoryHistory from 'history/createMemoryHistory';
 import mockViews from '../mocks/views.mock';
+import {mockEmptyItems, mockItemsArray, mockItemsArrayKeyed, mockReplaceItemsArray} from '../mocks/items.mock';
 
 describe('The Filters API ', () => {
-  let filtersApi, viewsApi, queries, history;
+  let filtersApi, viewsApi, dataApi, queries, history;
   const hooks = new Hooks();
   const rxdux = new Rxdux(optionsExample, hooks);
 
@@ -41,7 +43,8 @@ describe('The Filters API ', () => {
     history = createMemoryHistory();
     queries = new Queries(rxdux, optionsExample, {hooks}, history);
     viewsApi = new ViewsApi(rxdux, optionsExample, {hooks});
-    filtersApi = new FiltersApi(rxdux, optionsExample, {hooks, queries});
+    dataApi = new DataApi(rxdux, optionsExample, {hooks});
+    filtersApi = new FiltersApi(rxdux, optionsExample, {hooks, queries, data: dataApi});
  
     viewsApi.setViews(mockViews)
   });
@@ -87,7 +90,7 @@ describe('The Filters API ', () => {
     filtersApi.getPaginationFilters('eli')
       .subscribe(d => {
         if(!called) {
-          expect(d).to.eql({cursor: null, page: 1, skip: 0, take: 25, totalItems: 0});
+          expect(d).to.eql({cursor: null, page: 1, skip: 0, take: 25, totalItems: 100});// total 100 is set by the data.spec file
           done();called = true;
         }
       }); 
@@ -120,22 +123,42 @@ describe('The Filters API ', () => {
       assert.ok(filtersApi.run(exampleFilterRun));
   });
 
-  // it('run method should trigger the onFilterChange$ hook to fire, and the queryObject and queryString should be present in the state', done => {   
-  //   let called = false;
+  it('run method should trigger the onFilterChange$ hook to fire', done => {   
+    let called = false;
     
-  //   filtersApi.hooks.onFilterChange$
-  //     .subscribe(d => {
-  //       if(!called && Object.keys(d.state).length > 0) {
-  //         console.log('TEST onFilterChange hook ', d, d.state.queryString, JSON.stringify(d.state.queryObject, null, 2));
-  //         expect(d.state.queryObject).not.to.be.empty
-  //         // expect(d).to.have.keys(['change', 'state', 'lastState'])
-  //         // .and.expect(d.state).to.have.keys(['change', 'state', 'lastState', 'cb']);
-  //         done();called = true;
-  //       }
-  //     });
+    hooks.onFilterChange$
+      .subscribe(d => {
+        if(!called) {
+          expect(d).to.have.keys(['change', 'state', 'replaceItems']);
+          done();called = true;
+        }
+      });
 
-  //     assert.ok(filtersApi.run(exampleFilterRun));
-  // });
+      assert.ok(filtersApi.run(exampleFilterRun));
+  });
+
+  it('run method should trigger the onFilterChange$ hook to fire, and it should allow us to set store items from its callback', done => {   
+    let called = false;
+    
+    hooks.onFilterChange$
+      .subscribe(({change, state, replaceItems}) => {
+        if(!called) {
+
+          replaceItems({items: mockItemsArray, idProp: 'id', totalItems: 300});
+          
+          // Now we can check the store to see if our items match
+          dataApi.getItems()
+            .subscribe(d => {
+              if(!called) {
+                expect(d).to.eql(mockItemsArray);
+                done();called = true;
+              }
+            }); 
+        }
+      });
+
+      assert.ok(filtersApi.run(exampleFilterRun));
+  });
 
   it('resetFilters method should clear all filter values in the store, then return an Observable that plucks the filters from the current rxdux state', done => {   
     let called = false;

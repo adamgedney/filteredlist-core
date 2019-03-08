@@ -1,4 +1,6 @@
 import createHistory from 'history/createBrowserHistory';
+import createMemoryHistory from 'history/createMemoryHistory';
+import mockQueryString from '../../test/specs/mocks/queryString.mock';
 import {
   UPDATE_QUERY_STRING,
   UPDATE_QUERY_OBJECT
@@ -10,6 +12,7 @@ export default class{
   constructor(rxdux, options, instance, history) {
     this.rxdux = rxdux;
     this.hooks = instance.hooks;
+    this._isPhantomHistory = false;
 
     /** 
      * Memory History is used by the test runner as there's no DOM. 
@@ -17,7 +20,10 @@ export default class{
      * createHistory requires a DOM.
      * */
     try{ this.history = createHistory(); }
-    catch(e) { this.history = history; }
+    catch(e) { 
+      this.history = history || createMemoryHistory();
+      this._isPhantomHistory = true; 
+    }
   }
 
   /**
@@ -26,8 +32,8 @@ export default class{
    * @returns {*}
    * @private
    */
-  _makeQueryObject(filters) {
-    return makeQueryObject(filters);
+  _makeQueryObject(filterObject) {
+    return makeQueryObject(filterObject);
   }
 
   /**
@@ -97,7 +103,8 @@ export default class{
 
       if (queryString === null) { queryString = ''; }
 
-      let replaceUrl = (queryString + '&' + this._getPaginationQueryParams()).replace(/&+$/, "");
+      // let replaceUrl = (queryString + '&' + this._getPaginationQueryParams()).replace(/&+$/, "");
+      let replaceUrl = queryString;
 
       // Legacy support for clearPaginationQueryString
       if (options.clearPaginationQueryString) {
@@ -191,14 +198,16 @@ export default class{
    */
   _readQueryStringFromURL() {
     // return this.history.location.href.split('?')[1] || '';
-    return this.history.location.search;
+    return this._isPhantomHistory 
+      ? mockQueryString
+      : this.history.location.search;
   }
 
     /**
    * Converts a query string to a query object. Used on app load to rebuild a filter set
    * @param str
    */
-  _makeFilterObjectFromQueryString(str) {
+  _makeFilterObjectFromQueryString(str = '') {
     return makeFilterObjectFromQueryString(str);
   }
 
@@ -262,7 +271,7 @@ export default class{
    */
   getFullUrl() {
     let window = window;
-    if(!window) { return 'https://iliketurtles.com/?state=sdfhw458hwreojbd&view=test'; }
+    if(!window) { return 'https://iliketurtles.com/?state=87fc3814-4cb9-43a5-b723-63ecebd65c5a,cdc3d520-8b74-46ac-9f4c-8f27d04ab49f&view=eli'; }
 
     return window.location.href;
   }
@@ -382,7 +391,7 @@ export default class{
    * @returns
    */
   export function makeFilterObjectFromQueryString(str){
-    return decodeURI(str.replace(/^\?/, ''))
+    const obj = decodeURI(str.replace(/^\?/, ''))
       .split("&")
       .reduce((acc, segment) => {
         // segment: genre=1234nksfngkw45w45
@@ -417,4 +426,6 @@ export default class{
         pagination: {},
         view: ''
       });
+
+      return obj;
   }

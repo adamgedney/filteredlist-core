@@ -11,7 +11,7 @@ import Hooks from './hooks';
 export default class{
   constructor(options) {
     this.options = options; //  @todo add options schema validation in the future
-    
+    this.initialQueryString = '';
     /** 
      * Need access to this.options and there is a preference in order of instantiation 
      * so we need this setup procedure 
@@ -25,6 +25,7 @@ export default class{
     this.filters = new Filters(this.rxdux, this.options, this);
     this.views = new Views(this.rxdux, this.options, this);
 
+    this._setViews(this.options.views);
     this._onPageLoad();
   }
 
@@ -46,10 +47,28 @@ export default class{
   }
 
   /**
+   * Set the store up with the views
+   *
+   * @param {*} views
+   */
+  _setViews(views) {
+    this.views.setViews(views);
+  }
+
+  /**
    * Setup page load listeners to handle query string processing
    *
    */
   _onPageLoad(){
+    // GEt the query string, generate a query object and filter object, write them to the store
+    const queryString = this.queries._readQueryStringFromURL();
+    const filterObject = this.queries._makeFilterObjectFromQueryString(queryString);
+    const queryObject = this.queries._makeQueryObject(filterObject);
+
+    throw;
+    console.log('_onPageLoad ', queryString,
+    queryObject,
+    filterObject);
   //   if (document.readyState == "complete") {
   //     alert("Your page is loaded");
   // }
@@ -62,6 +81,12 @@ export default class{
   // loaded - Has been loaded
   // interactive - Has loaded enough and the user can interact with it
   // complete - Fully loaded
+
+    return {
+      queryString,
+      queryObject,
+      filterObject
+    }
   }
 
   /**

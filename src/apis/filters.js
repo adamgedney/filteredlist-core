@@ -19,27 +19,29 @@ export default class{
 
   initEventListeners() {
 
-    /** THese subscriptions come from the store. 
-     * Their return tells us new state has been built 
+    /** Private hooks braodcast from the run function, after Reducer execution
+     * The reducer is building the queryObject, filterObject, and queryString for us
      * */
     this.hooks._onFilterChange$.subscribe((data) => {
       const {change, state} = data;
-      const {queryObject, queryString} = state;
+      const {queryString} = state;
 
       /** 
        * 1. Write query string to the url
        * 2. register the onFilterChange$ callback to do a replaceData
        * 3. replace data in store
        */
-      const history = this.queries._writeQueryStringToUrl(queryString, this.options);
-      // console.log("HISTORY ", history);
+      this.queries._writeQueryStringToUrl(queryString, this.options);
+     
       /** This callback can be triggered by the host application after it has processed filter data */
-      this.hooks.onFiltersChange$.next({change, state, callback: ({items, idProp = 'id', totalCount}) => {
-        console.log('filterChange Callback', items, totalCount, idProp);
+      this.hooks.onFilterChange$.next({
+        change, 
+        state, 
+        replaceItems: ({items, idProp = 'id', totalItems}) => {
 
-        // Handle pushing to store for the app developer.
-        // If they never call this callback then they needs to manually push to the store themselves
-        this.data.replaceItems({items, idProp, totalItems});
+          // Handle pushing to store for the app developer.
+          // If they never call this callback then they needs to manually push to the store themselves
+          this.data.replaceItems({items, idProp, totalItems});
       }});
     }); 
 

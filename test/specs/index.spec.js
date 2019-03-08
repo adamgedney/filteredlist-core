@@ -44,6 +44,12 @@ describe('The filteredlist-core library', () => {
 
   it('should expose Hooks methods to the instance prototype', () => 
     Object.keys(new Hooks())
-      .forEach(hook => assert.property(fl, hook)));
+      .forEach(hook => assert.property(fl, hook))
+  );
+
+  it('_onPageLoad should pull the current query string from the url, then return it and the query object data', done => {
+    expect(fl._onPageLoad()).to.have.keys(['queryString', 'queryObject', 'filterObject']);
+    done();
+  });
 
 });

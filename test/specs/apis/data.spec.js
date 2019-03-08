@@ -1,32 +1,22 @@
 import { expect, assert } from 'chai';
 import DataApi from 'Src/apis/data.js';
+import ViewsApi from 'Src/apis/views.js';
 import optionsExample from 'Src/options.example.js';
 import Rxdux from 'Src/rxdux';
 import Hooks from 'Src/hooks';
+import {mockEmptyItems, mockItemsArray, mockItemsArrayKeyed, mockReplaceItemsArray} from '../mocks/items.mock';
+import mockViews from '../mocks/views.mock';
 
 describe('The Data API ', () => {
-  let dataApi;
+  let dataApi, viewsApi;
   const hooks = new Hooks();
   const rxdux = new Rxdux({}, hooks);
-  const mockEmptyItems = [];
-  const mockItemsArray = [
-    {id: 0, name: 'Eli'},
-    {id: 1, name: 'Bluefish'},
-    {id: 2, name: 'Whale'}
-  ];
-  const mockItemsArrayKeyed = { 
-    '0': { id: 0, name: 'Eli' },
-    '1': { id: 1, name: 'Bluefish' },
-    '2': { id: 2, name: 'Whale' } 
-  };
-  const mockReplaceItemsArray = [
-    {id: 34, name: 'RedFish'},
-    {id: 246, name: 'Tigers'},
-    {id: 314, name: 'Eli'}
-  ];
 
   beforeEach(function() {
+    viewsApi = new ViewsApi(rxdux, optionsExample, {hooks});
     dataApi = new DataApi(rxdux, optionsExample, {hooks});
+
+    viewsApi.setViews(mockViews)
   });
 
   it('should instantiate', () => expect(dataApi).to.be.instanceOf(DataApi));
@@ -74,6 +64,20 @@ describe('The Data API ', () => {
       .subscribe(d => {
         if(!called) {
           expect(d).to.eql(mockReplaceItemsArray);
+          done();called = true;
+        }
+      }); 
+  });
+
+  it('replaceItems method should replace items and update the selected view\'s pagination object', (done) => {   
+    let called = false;
+    
+    dataApi.replaceItems({items: mockReplaceItemsArray, idProp: 'id', totalItems: 100}, 'state')
+      .subscribe(state => {
+        if(!called) {            
+          const pagination = state.views.filter(view => view.id === state.selectedView)[0]._pagination;
+
+          expect(pagination.totalItems).to.equal(100);
           done();called = true;
         }
       }); 

@@ -1,4 +1,5 @@
 import {reduce, mergeMap, map, pluck, first, tap} from 'rxjs/operators';
+import {of} from 'rxjs';
 import {
   PUSH_ITEMS_TO_STORE,
   REPLACE_ITEMS,
@@ -55,7 +56,7 @@ export default class{
    * @param {*} idProp
    * @returns
    */
-  pushItems({items, idProp = 'id', totalItems}) {
+  pushItems({items, idProp = 'id', totalItems}, selector) {
     const state$ = this.rxdux.dispatch({
       type: PUSH_ITEMS_TO_STORE,
       data: {
@@ -68,7 +69,7 @@ export default class{
       tap(state => {
         this.hooks.onDataPushed$.next({items: state.items, state});
       }),
-      mergeMap(() => this.getItems())
+      mergeMap((state) => selector == 'state' ? of(state) : this.getItems())
     );
     
     state$.subscribe(()=>{});
@@ -83,7 +84,7 @@ export default class{
    * @param {*} idProp
    * @returns
    */
-  replaceItems({items, idProp = 'id', totalItems}) {
+  replaceItems({items, idProp = 'id', totalItems}, selector) {
     const state$ = this.rxdux.dispatch({
       type: REPLACE_ITEMS,
       data: {
@@ -96,7 +97,7 @@ export default class{
       tap(state => {
         this.hooks.onDataReplaced$.next({items: state.items, state});
       }),
-      mergeMap(() => this.getItems())
+      mergeMap((state) => selector == 'state' ? of(state)  : this.getItems())
     );
 
     state$.subscribe(() => {});
@@ -110,7 +111,7 @@ export default class{
    * @param {*} idProp
    * @returns
    */
-  updateItem(item, idProp = 'id') {
+  updateItem(item, idProp = 'id', selector) {
     const state$ = this.rxdux.dispatch({
       type: UPDATE_ITEM,
       data: {id: item[idProp], item}
@@ -120,7 +121,7 @@ export default class{
       tap(state => {
         this.hooks.onItemUpdated$.next({item, items: state.items, state});
       }),
-      mergeMap(() => this.getItems())
+      mergeMap((state) => selector == 'state' ? of(state)  : this.getItems())
     );
 
     state$.subscribe(()=>{});

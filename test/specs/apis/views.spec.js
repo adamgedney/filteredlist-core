@@ -22,7 +22,7 @@ describe('The Views API ', () => {
       "page": 1,
       "skip": 0,
       "take": 25,
-      "totalItems": 0
+      "totalItems": 300 // 300 is input to the store by the filters.spec
     },
     filterGroups: []
   };
