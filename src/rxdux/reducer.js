@@ -213,6 +213,9 @@ export default (options, hooks) => (state = initialState, action) => {
     //   pagination: {skip: 1, take: 25}
     // }
 
+      // Update the selectedView with the current filter instructions
+      _state.selectedView = _data.view;
+      
       _state.views = _state.views.map(view => {
         if (view.id === _data.view) { // view specific filter runs
 
@@ -264,7 +267,7 @@ export default (options, hooks) => (state = initialState, action) => {
       
       // Query string and object making
       _state.filtersObject = getFilters({view: _data.view, state: _state});
-      _state.queryObject = makeQueryObject(_state.filtersObject);
+      _state.queryObject = makeQueryObject(_state.filtersObject);// Right now this is the same as the filterObj
       _state.queryString = makeQueryString(_state.queryObject);
 
       return _state;

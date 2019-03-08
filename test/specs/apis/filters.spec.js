@@ -6,32 +6,13 @@ import Rxdux from 'Src/rxdux';
 import Hooks from 'Src/hooks';
 import Queries from 'Src/apis/queries';
 import createMemoryHistory from 'history/createMemoryHistory';
+import mockViews from '../mocks/views.mock';
 
 describe('The Filters API ', () => {
   let filtersApi, viewsApi, queries, history;
   const hooks = new Hooks();
   const rxdux = new Rxdux(optionsExample, hooks);
 
-  const mockViews = [
-    {
-      id: 'eli', 
-      columns:[{property: 'id', sort: 'ASC' /** ASC, DESC, null */}, {property: 'title', visible: true}],
-      filterGroups: [
-        {
-          id: 'figNewtons',
-          filters: [
-            {id: 'newtons', type: 'select', value: null},
-            {id: 'figgy', type: 'select', value: null},
-            {id: 'state', type: 'select', value: null},
-            {id: 'languages', type: 'select', value: null}
-          ]
-        }
-      ],
-      // _pagination: {cursor: null, page: 1, skip: 0, take: 25, totalItems: 0}
-    },
-    {id: 'eliWithGlasses', columns:[{property: 'id'}, {property: 'title', visible: true}]},
-    {id: 'eliWithAPegLeg', columns:[{property: 'id'}, {property: 'title', visible: false}, {property: 'genre', visible: true}]}
-  ];
   const exampleFilterRun = {
     view : 'eli',
     filters: [
@@ -54,6 +35,7 @@ describe('The Filters API ', () => {
     sort: [{column: 'id', operator: 'DESC'}],
     pagination: {skip: 0, take: 25}
   };
+ 
 
   beforeEach(function() {
     history = createMemoryHistory();
@@ -78,19 +60,7 @@ describe('The Filters API ', () => {
     filtersApi.getFilters({view: 'eli', filterGroup: 'figNewtons'})
       .subscribe(d => {
         if(!called) {
-          expect(d).to.eql(mockViews[0].filterGroups[0].filters);
-          done();called = true;
-        }
-      }); 
-  });
-
-  it('getFilters method should return an Observable of filters from the entire view if no filterGroup was set', (done) => {   
-    let called = false;
-    
-    filtersApi.getFilters({view: 'eli'})
-      .subscribe(d => {
-        if(!called) {
-          expect(d).to.eql(mockViews[0].filterGroups[0].filters);
+          expect(d).to.have.keys(['filters', 'sort', 'pagination', 'view']);
           done();called = true;
         }
       }); 
@@ -130,7 +100,7 @@ describe('The Filters API ', () => {
     filtersApi.getFilters({view: 'eli', filterGroup: 'figNewtons'})
       .subscribe(d => {
         if(!called) {
-          expect(d[0].value).to.have.members(['f144y']);
+          expect(d.filters[0].value).to.have.members(['f144y']);
           done();called = true;
         }
       });
@@ -142,7 +112,7 @@ describe('The Filters API ', () => {
     hooks._onFilterChange$
       .subscribe(d => {
         if(!called) {
-          expect(d).to.have.keys(['change', 'state', 'lastState']);
+          expect(d).to.have.keys(['change', 'state']);
           done();called = true;
         }
       });
@@ -175,8 +145,8 @@ describe('The Filters API ', () => {
     filtersApi.getFilters({view: 'eli', filterGroup: 'figNewtons'})
       .subscribe(d => {
         if(!called) {
-          assert.isNull(d[0].value);
-          assert.isNull(d[0].operator);
+          assert.isNull(d.filters[0].value);
+          assert.isNull(d.filters[0].operator);
 
           done();called = true;
         }

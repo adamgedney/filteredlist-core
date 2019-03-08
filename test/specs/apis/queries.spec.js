@@ -5,9 +5,17 @@ import Rxdux from 'Src/rxdux';
 import optionsExample from 'Src/options.example.js';
 import createMemoryHistory from 'history/createMemoryHistory';
 import Hooks from 'Src/hooks';
+import ViewsApi from 'Src/apis/views';
+import mockState from '../mocks/state.mock';
+import mockFilterObj from '../mocks/filterObj.mock';
+import mockQueryObj from '../mocks/queryObj.mock';
+import mockQueryString from '../mocks/queryString.mock';
+import mockViews from '../mocks/views.mock';
+
+import {getFilters} from 'Src/utils';
 
 describe('The Queries API ', () => {
-  let history, queriesApi;
+  let history, queriesApi, viewsApi;
   const hooks = new Hooks();
   const rxdux = new Rxdux({}, hooks);
   let mockUrl = '/';
@@ -26,18 +34,46 @@ describe('The Queries API ', () => {
     languages: ["9d5741e1-b482-4027-8c57-45193073ef12"],
     entityType: ["olyplat-entity-movie"]
   };
-  let queryString = '?state=cbd0a696-2b4f-4469-85d1-f7027345e3e0&genres=87fc3814-4cb9-43a5-b723-63ecebd65c5a,cdc3d520-8b74-46ac-9f4c-8f27d04ab49f&languages=9d5741e1-b482-4027-8c57-45193073ef12&entityType=olyplat-entity-movie&sort-primaryGenre=ASC';
-  let filters = [
-    {"id":"state","type":"select","prop":"state","label":"State","value":["cbd0a696-2b4f-4469-85d1-f7027345e3e0"],"multiple":true,"options":{"key":"entityUUID","value":"entityValue"}},
-    {"id":"genres","type":"select","prop":"genres","label":"Genres","value":["87fc3814-4cb9-43a5-b723-63ecebd65c5a","cdc3d520-8b74-46ac-9f4c-8f27d04ab49f"],"multiple":true,"multi":true,"options":{"key":"entityUUID","value":"entityValue"}},
-    {"id":"languages","type":"select","prop":"languages","label":"Languages","value":["9d5741e1-b482-4027-8c57-45193073ef12"],"multiple":true,"options":{"key":"entityUUID","value":"entityValue"}},
-    {"id":"entityType","type":"select","prop":"entityType","label":"Show Type","value":["olyplat-entity-movie"],"multiple":true,"options":{"key":"entityUUID","value":"entityValue"}}
-  ];
   const base64Regex = /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/;
+  const _mockBuiltQO = {
+    "filters": [
+      {
+        "newtons": [
+          "f144y"
+        ]
+      },
+      {
+        "state": [
+          "87fc3814-4cb9-43a5-b723-63ecebd65c5a",
+          "cdc3d520-8b74-46ac-9f4c-8f27d04ab49f"
+        ]
+      },
+      {
+        "languages": [
+          "9d5741e1-b482-4027-8c57-45193073ef12"
+        ]
+      }
+    ],
+    "sort": [
+      {
+        "property": "id",
+        "sort": "ASC"
+      }
+    ],
+    "pagination": {
+      "skip": "0",
+      "take": "25",
+      "page": "1"
+    },
+    "view": "eli"
+  };
 
   beforeEach(function() {
     history = createMemoryHistory();
     queriesApi = new QueriesApi(rxdux, optionsExample, {hooks}, history);
+    viewsApi = new ViewsApi(rxdux, optionsExample, {hooks});
+
+    viewsApi.setViews(mockViews)
   });
 
   it('should instantiate', () => expect(queriesApi).to.be.instanceOf(QueriesApi));
@@ -45,13 +81,13 @@ describe('The Queries API ', () => {
 
   it('should have [_makeQueryObject] method', () => assert.typeOf(queriesApi._makeQueryObject, 'function'));
   it('should have [_makeQueryString] method', () => assert.typeOf(queriesApi._makeQueryString, 'function'));
-  it('should have [_writeQueryStringToURL] method', () => assert.typeOf(queriesApi._writeQueryStringToURL, 'function'));
+  it('should have [_writeQueryStringToUrl] method', () => assert.typeOf(queriesApi._writeQueryStringToUrl, 'function'));
   it('should have [_getPaginationQueryParams] method', () => assert.typeOf(queriesApi._getPaginationQueryParams, 'function'));
   it('should have [_getViewParamFromURL] method', () => assert.typeOf(queriesApi._getViewParamFromURL, 'function'));
   it('should have [_pickFromUrl] method', () => assert.typeOf(queriesApi._pickFromUrl, 'function'));
   it('should have [_readQueryStringFromURL] method', () => assert.typeOf(queriesApi._readQueryStringFromURL, 'function'));
   it('should have [_parseParams] method', () => assert.typeOf(queriesApi._parseParams, 'function'));
-  it('should have [_makeQueryObjectFromQueryString] method', () => assert.typeOf(queriesApi._makeQueryObjectFromQueryString, 'function'));
+  it('should have [_makeFilterObjectFromQueryString] method', () => assert.typeOf(queriesApi._makeFilterObjectFromQueryString, 'function'));
   it('should have [_writeQueryStringToStore] method', () => assert.typeOf(queriesApi._writeQueryStringToStore, 'function'));
   it('should have [_writeQueryObjectToStore] method', () => assert.typeOf(queriesApi._writeQueryObjectToStore, 'function'));
   it('should have [getQueryObject] method', () => assert.typeOf(queriesApi.getQueryObject, 'function'));
@@ -61,31 +97,40 @@ describe('The Queries API ', () => {
   it('should have [_base64] method', () => assert.typeOf(queriesApi._base64, 'function'));
   it('should have [_unBase64] method', () => assert.typeOf(queriesApi._unBase64, 'function'));
 
-  it('_makeQueryObject method should convert a filters collection to a query object', () =>
-    expect(queriesApi._makeQueryObject(filters)).to.eql(queryObjectLessSort));
+  it('_makeQueryObject method should convert a filter object to a query object', done => {
+    // Set the view(beforeEach) so we have the correct filters in the store
+    const filters = getFilters({view: 'eli', state: mockState});
+    const queryObj = queriesApi._makeQueryObject(filters);
+  
+    expect(queryObj).to.eql(mockQueryObj);
+    done();
+  });
+    
+  it('_makeQueryString method should convert a query(filter) object to a query string', () => 
+    expect(queriesApi._makeQueryString(mockQueryObj)).to.eql(mockQueryString.replace('&view=eli', '')));
 
-  it('_makeQueryString method should convert a query object to a query string', () => 
-    expect(queriesApi._makeQueryString(queryObject)).to.eql(queryString));
-
-  it('_writeQueryStringToURL method should modify the history api by writing to the location property', () =>
-    expect(queriesApi._writeQueryStringToURL(queryString, {writeQueryStringToURL: true}).location.search).to.eql(queryString)); 
+  it('_writeQueryStringToUrl method should modify the history api by writing to the location property', () =>
+    expect(queriesApi._writeQueryStringToUrl(mockQueryString, {writeQueryStringToUrl: true}).location.search).to.eql(mockQueryString)); 
   
-  it('_writeQueryStringToURL method should return undefined if options.writeQueryStringToURL is falsey', () =>
-    expect(queriesApi._writeQueryStringToURL(queryString, {writeQueryStringToURL: undefined})).to.be.undefined); 
+  it('_writeQueryStringToUrl method should return undefined if options.writeQueryStringToUrl is falsey', () =>
+    expect(queriesApi._writeQueryStringToUrl(mockQueryString, {writeQueryStringToUrl: undefined})).to.be.undefined); 
   
-  it('_writeQueryStringToURL method should return undefined if queryString is falsey', () =>
-    expect(queriesApi._writeQueryStringToURL(undefined, {writeQueryStringToURL: undefined})).to.be.undefined); 
+  it('_writeQueryStringToUrl method should return undefined if queryString is falsey', () =>
+    expect(queriesApi._writeQueryStringToUrl(undefined, {writeQueryStringToUrl: undefined})).to.be.undefined); 
   
-  it('_makeQueryObjectFromQueryString method should convert a query object to a query string', () =>
-    expect(queriesApi._makeQueryObjectFromQueryString(queryString)).to.eql(Object.assign(queryObjectLessSort, {sort: { primaryGenre: 'ASC' }})));
+  it('_makeFilterObjectFromQueryString method should convert a query object to a query string', () => {
+    const _builtQO = queriesApi._makeFilterObjectFromQueryString(mockQueryString);
+   
+    expect(_builtQO).to.eql(_mockBuiltQO);
+  });
   
   it('_writeQueryStringToStore method should update the store with a new query string', done => {
     let called = false;
 
-    queriesApi._writeQueryStringToStore(queryString)
+    queriesApi._writeQueryStringToStore(mockQueryString)
       .subscribe(d => {
         if(!called) {
-          assert.equal(d, queryString);
+          assert.equal(d, mockQueryString);
 
           queriesApi._writeQueryStringToStore('');
           done();called = true;
@@ -137,7 +182,7 @@ describe('The Queries API ', () => {
     assert.equal(queriesApi.getFullUrl(), mockFullUrl));
   
   it('removeQueryStringFromUrl method should remove the query string from the url', () => {
-    history.replace(`/${queryString}`);
+    history.replace(`/${mockQueryString}`);
 
     assert.equal(queriesApi.removeQueryStringFromUrl(), mockUrl);
   });
@@ -155,18 +200,18 @@ describe('The Queries API ', () => {
   });
 
   it('_base64 method should return a base64 encoded queryString', () => {
-    assert.match(queriesApi._base64(queryString), base64Regex); 
+    assert.match(queriesApi._base64(mockQueryString), base64Regex); 
   });
 
   it('_unBase64 method should return the input string', () => {
-    const base64QueryStr = queriesApi._base64(queryString);
+    const base64QueryStr = queriesApi._base64(mockQueryString);
 
-    assert.equal(queriesApi._unBase64(base64QueryStr), queryString); 
+    assert.equal(queriesApi._unBase64(base64QueryStr), mockQueryString); 
   });
 
-  it('_writeQueryStringToURL method should write a base64 query to the url if options.base64UrlQueryString is true', () => {
-    const historySearchValue = queriesApi._writeQueryStringToURL(queryString, {writeQueryStringToURL: true, base64UrlQueryString: true}).location.search;
+  it('_writeQueryStringToUrl method should write a base64 query to the url if options.base64UrlQueryString is true', () => {
+    const historySearchValue = queriesApi._writeQueryStringToUrl(mockQueryString, {writeQueryStringToUrl: true, base64UrlQueryString: true}).location.search;
 
-    assert.equal(historySearchValue, `?fl=${queriesApi._base64(queryString)}`); 
+    assert.equal(historySearchValue, `?fl=${queriesApi._base64(mockQueryString)}`); 
   });
 });

@@ -4,12 +4,15 @@ import {
 } from '../constants';
 import {mergeMap, map, first, tap} from 'rxjs/operators';
 import { of, merge, Subject } from 'rxjs';
+import {getFilters as _getFilters} from '../utils';
 
 export default class{
   constructor(rxdux, options, instance = {}) {
+    this.options = options;
     this.rxdux = rxdux;
     this.hooks = instance.hooks;
     this.queries = instance.queries;
+    this.data = instance.data;
 
     this.initEventListeners();
   }
@@ -20,24 +23,24 @@ export default class{
      * Their return tells us new state has been built 
      * */
     this.hooks._onFilterChange$.subscribe((data) => {
-      const {change, state, lastState} = data;
-      // get filters, Build query object, then string
-      this.rxdux.store$
-        .subscribe(result => {
-          if (result.queryString) {
-            console.log('_onFilterChange$ ** ', result);
+      const {change, state} = data;
+      const {queryObject, queryString} = state;
 
-          }
-        })
-      // const queryObject = this.queries._makeQueryObject(filters);
-      // const queryString = this._makeQueryString(queryObject);
+      /** 
+       * 1. Write query string to the url
+       * 2. register the onFilterChange$ callback to do a replaceData
+       * 3. replace data in store
+       */
+      const history = this.queries._writeQueryStringToUrl(queryString, this.options);
+      // console.log("HISTORY ", history);
+      /** This callback can be triggered by the host application after it has processed filter data */
+      this.hooks.onFiltersChange$.next({change, state, callback: ({items, idProp = 'id', totalCount}) => {
+        console.log('filterChange Callback', items, totalCount, idProp);
 
-      // console.log('_onFilterChange$ ** ', change, this.queries, queryObject, queryString);
-
-      // this.hooks.onFilterChange$.next({...data, cb: () => {
-
-      // }}); 
-      // @TODO this is the callback that needs to be listened to in order to allow push backs from the event
+        // Handle pushing to store for the app developer.
+        // If they never call this callback then they needs to manually push to the store themselves
+        this.data.replaceItems({items, idProp, totalItems});
+      }});
     }); 
 
     // this.hooks._onFiltersReset$.subscribe(data => {
@@ -62,26 +65,13 @@ export default class{
    * @returns
    */
   getFilters({view,filterGroup}) {
-    if (filterGroup) {
-      return this.rxdux.selector$('views')
-        .pipe(
-          mergeMap(views => of(
-            views.filter(_view => _view.id === view)[0]
-              .filterGroups.filter(group => group.id === filterGroup)[0]
-                .filters
-          ))
-        )
-    } else {
-      return this.rxdux.selector$('views')
-        .pipe(
-          mergeMap(views => of(
-            views.filter(_view => _view.id === view)[0]
-              .filterGroups.reduce((acc, group) => {
-                return acc.concat(group.filters);
-              }, [])
-          ))
-        )
-    }
+    return this.rxdux.store$
+      .pipe(
+        // first(),
+        mergeMap(state => {
+          return of(_getFilters({view, filterGroup, state}));
+        })
+      )
   }
 
   /**
@@ -128,10 +118,15 @@ export default class{
       data: filterData
     }, 'state')
     .pipe(
-      // first(),
+      first(),
       tap(state => {
         this.hooks.onLoadingChange$.next({loading: true, state});
-        console.log('RUN STATE ', state);
+        // Write our query to the url
+        if (state.queryString) {
+          this.queries._writeQueryStringToUrl(state.queryString, this.options);
+        }
+
+        // console.log('RUN STATE ', state);
         if (filterData.sort) { this.hooks._onSort$.next({view: filterData.view, sort: filterData.sort, state}); }
         if (filterData.pagination) { this.hooks._onPaginationChange$.next({view: filterData.view, pagination: filterData.pagination, state}); }
         if (filterData.filters) { this.hooks._onFilterChange$.next({change: filterData, state}); }

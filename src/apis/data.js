@@ -55,7 +55,7 @@ export default class{
    * @param {*} idProp
    * @returns
    */
-  pushItems(items, idProp = 'id', totalItems) {
+  pushItems({items, idProp = 'id', totalItems}) {
     const state$ = this.rxdux.dispatch({
       type: PUSH_ITEMS_TO_STORE,
       data: {
@@ -83,7 +83,7 @@ export default class{
    * @param {*} idProp
    * @returns
    */
-  replaceItems(items, idProp = 'id', totalItems) {
+  replaceItems({items, idProp = 'id', totalItems}) {
     const state$ = this.rxdux.dispatch({
       type: REPLACE_ITEMS,
       data: {

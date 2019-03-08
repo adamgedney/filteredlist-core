@@ -3,7 +3,8 @@ import {
   UPDATE_QUERY_STRING,
   UPDATE_QUERY_OBJECT
 } from '../constants';
-import {first, tap} from 'rxjs/operators';
+import {first, tap, filter} from 'rxjs/operators';
+import _merge from 'lodash.merge';
 
 export default class{
   constructor(rxdux, options, instance, history) {
@@ -87,9 +88,10 @@ export default class{
  * @param options
  * @private
  */
-  _writeQueryStringToURL(queryString, options) {
+  _writeQueryStringToUrl(queryString, options) {
+    
     // Only allow if the config file specifies
-    if (options.writeQueryStringToURL && (queryString || queryString === null)) {
+    if (options.writeQueryStringToUrl && (queryString || queryString === null)) {
       // const path = this.history.location.href.split('?')[0].split(this.history.location.host)[1];
       const path = this.history.location.pathname;
 
@@ -196,40 +198,8 @@ export default class{
    * Converts a query string to a query object. Used on app load to rebuild a filter set
    * @param str
    */
-  _makeQueryObjectFromQueryString(str) {
-    let queryString = decodeURI(str.replace(/^\?/, '')).split("&");// Remove the first "?", then split
-    let queryParams = {};
-    let segment, value, key;
-
-    for (var i = 0; i < queryString.length; i++) {
-      segment = queryString[i].split('=');
-      key = segment[0];
-      value = segment[1] && segment[1].charAt(0) === '[' ? decodeURIComponent(segment[1]) : segment[1];
-      // Handle sort params nested object
-      if (key && key.indexOf('sort-') > -1) {
-        if (!queryParams.hasOwnProperty('sort')) {
-          queryParams.sort = {};
-        }
-
-        queryParams.sort[key.split('sort-')[1]] = value;
-
-      } else {//Filter params
-        if (key && queryParams.hasOwnProperty(key)) {
-          if (_.isArray(queryParams[key])) {
-            queryParams[key].push([value]);// Add the new value
-          } else {
-            queryParams[key] = [queryParams[key]];// Extract the string value and transform to an array
-            queryParams[key].push([value]);//Add the new value
-          }
-        } else {
-          if (key) {
-            queryParams[key] = value.split(",");// First run, add the string
-          }
-        }
-      }
-    }
-
-    return queryParams;
+  _makeFilterObjectFromQueryString(str) {
+    return makeFilterObjectFromQueryString(str);
   }
 
   /**
@@ -314,8 +284,8 @@ export default class{
    * @returns {*}
    * @private
    */
-  export function makeQueryObject(filters) {
-    return filters
+  export function makeQueryObject({filters, sort, pagination}) {
+    const _filters = filters
       .map(filter => ({ [filter.id]: filter.range || filter.value }))
       .reduce((sum, query) => {
         const key = Object.keys(query)[0];
@@ -336,6 +306,22 @@ export default class{
         // return the mutated object
         return sum;
       }, {});
+
+
+    const _sort = sort
+      .reduce((acc, curr) => {
+        acc[`sort-${curr.property}`] = curr.sort;
+        return acc;
+      }, {});
+
+      const _pagination = {
+        skip: pagination.skip,
+        take: pagination.take,
+        page: pagination.page,
+        cursor: pagination.cursor
+      };
+
+      return {..._filters, ..._sort, ..._pagination};
   };
 
   /**
@@ -344,16 +330,16 @@ export default class{
    */
   export function makeQueryString(queryObject) {
 
+    // MErge everything, then covnert merged array to an object
     // Remove anything with a null value
-    // Handles single values and range values
+    // Handles single values and range values 
     Object.keys(queryObject)
       .forEach((key) => (queryObject[key] == null
         || ((queryObject[key].hasOwnProperty('start') && queryObject[key].hasOwnProperty('end'))
           && (queryObject[key].start == null && queryObject[key].end == null)))
         && delete queryObject[key]);
 
-      let queryString = 
-      Object.keys(queryObject)
+      let queryString = Object.keys(queryObject)
         .map(k => {
           let attribute = k,
             value = queryObject[k],
@@ -387,3 +373,48 @@ export default class{
 
     return queryString;
   };
+
+  /**
+   * Converter for strings to filter objects
+   *
+   * @export
+   * @param {*} str
+   * @returns
+   */
+  export function makeFilterObjectFromQueryString(str){
+    return decodeURI(str.replace(/^\?/, ''))
+      .split("&")
+      .reduce((acc, segment) => {
+        // segment: genre=1234nksfngkw45w45
+        const _segment = segment.split('='); // ['genre','1234nksfngkw45w45']
+        const key = _segment[0];
+        const value = _segment[1].split(',');
+
+        // Build pagination object
+        if (key === 'view') {
+          
+          acc.view = value[0];
+        } else if (['skip', 'take', 'page', 'cursor'].includes(key)) {
+          
+          acc.pagination[key] = value[0]; // un arrayify pagination values
+        } else if (key.indexOf('sort-') > -1) {
+          
+          acc.sort.push({
+            property: key.replace('sort-', ''), 
+            sort: value[0]
+          });
+        } else {
+          
+          acc.filters.push({
+            [key]: value
+          });
+        }
+
+        return acc;
+      }, {
+        filters: [],
+        sort: [],
+        pagination: {},
+        view: ''
+      });
+  }

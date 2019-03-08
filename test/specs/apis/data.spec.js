@@ -58,7 +58,7 @@ describe('The Data API ', () => {
   it('pushItems method should Add items to the items registry in the store', (done) => {   
     let called = false;
     
-    dataApi.pushItems(mockItemsArray, 'id', 300)
+    dataApi.pushItems({items: mockItemsArray, idProp: 'id', totalItems: 300})
       .subscribe(d => {
         if(!called) {
           expect(d).to.eql(mockItemsArray);
@@ -70,7 +70,7 @@ describe('The Data API ', () => {
   it('replaceItems method should replace all items in the store\'s item registry', (done) => {   
     let called = false;
     
-    dataApi.replaceItems(mockReplaceItemsArray, 'id', 300)
+    dataApi.replaceItems({items: mockReplaceItemsArray, idProp: 'id', totalItems: 300})
       .subscribe(d => {
         if(!called) {
           expect(d).to.eql(mockReplaceItemsArray);
