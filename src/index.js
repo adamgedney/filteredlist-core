@@ -62,13 +62,29 @@ export default class{
   _onPageLoad(){
     // GEt the query string, generate a query object and filter object, write them to the store
     const queryString = this.queries._readQueryStringFromURL();
-    const filterObject = this.queries._makeFilterObjectFromQueryString(queryString);
-    const queryObject = this.queries._makeQueryObject(filterObject);
+    // const filterObject = this.queries._makeFilterObjectFromQueryString(queryString);
+    // const queryObject = this.queries._makeQueryObject(filterObject);
+    // const currentView = filterObject.view;
 
-    throw;
-    console.log('_onPageLoad ', queryString,
-    queryObject,
-    filterObject);
+    // this.views.selectView(currentView);
+    // this.queries._writeQueryStringToStore(queryString);
+    // this.queries._writeQueryObjectToStore(queryObject);
+    // this.queries._writeFilterObjectToStore(filterObject);
+  
+
+    // this.hooks.onFilterChange$.subscribe(change => {
+      // console.log('FILTERS RAN____ ', JSON.stringify(filterObject, null, 2));
+    // })
+    // Now we've synced the store. Go ahead and run the filter command
+    this.filters.run(null, queryString)
+    // .subscribe(data => {
+    //   console.log('FILTERS RAN____ ', data);
+    // })
+
+    // console.log('_onPageLoad ', queryString,
+    // queryObject,
+    // filterObject,
+    // currentView);
   //   if (document.readyState == "complete") {
   //     alert("Your page is loaded");
   // }
@@ -84,8 +100,9 @@ export default class{
 
     return {
       queryString,
-      queryObject,
-      filterObject
+      // filterObject,
+      // queryObject,
+      // currentView
     }
   }
 

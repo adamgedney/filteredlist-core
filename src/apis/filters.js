@@ -66,7 +66,7 @@ export default class{
    * @param {*} request
    * @returns
    */
-  getFilters({view,filterGroup}) {
+  getFilters({view, filterGroup}) {
     return this.rxdux.store$
       .pipe(
         // first(),
@@ -112,26 +112,43 @@ export default class{
    * Main filter runner
    *
    * @param {*} filterData
+   * @param {*} queryString
    * @returns
    */
-  run(filterData) {
+  run(filterData = {}, queryString) {
+    let filterObject = filterData;
+
+    // // If the queryString is passed in alternatively, then we can build the rest of our data
+    if (queryString) {
+      const queryString = this.queries._readQueryStringFromURL();
+      filterObject = this.queries._makeFilterObjectFromQueryString(queryString);
+
+      this.queries._writeQueryStringToStore(queryString);
+    }
+    
+    const queryObject = this.queries._makeQueryObject(filterObject);
+
+    // this.views.selectView(filterObject.view);
+    this.queries._writeQueryObjectToStore(queryObject);
+    this.queries._writeFilterObjectToStore(filterObject);
+
     const state$ = this.rxdux.dispatch({
       type: RUN_FILTER,
-      data: filterData
+      data: filterObject
     }, 'state')
     .pipe(
       first(),
       tap(state => {
         this.hooks.onLoadingChange$.next({loading: true, state});
+
         // Write our query to the url
         if (state.queryString) {
           this.queries._writeQueryStringToUrl(state.queryString, this.options);
         }
 
-        // console.log('RUN STATE ', state);
-        if (filterData.sort) { this.hooks._onSort$.next({view: filterData.view, sort: filterData.sort, state}); }
-        if (filterData.pagination) { this.hooks._onPaginationChange$.next({view: filterData.view, pagination: filterData.pagination, state}); }
-        if (filterData.filters) { this.hooks._onFilterChange$.next({change: filterData, state}); }
+        if (filterObject.sort) { this.hooks._onSort$.next({view: filterObject.view, sort: filterObject.sort, state}); }
+        if (filterObject.pagination) { this.hooks._onPaginationChange$.next({view: filterObject.view, pagination: filterObject.pagination, state}); }
+        if (filterObject.filters) { this.hooks._onFilterChange$.next({change: filterObject, state}); }
       })
     );
 

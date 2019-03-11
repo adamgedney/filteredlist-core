@@ -7,6 +7,7 @@ import {
   CLEAR_WORKSPACE,
   UPDATE_QUERY_STRING,
   UPDATE_QUERY_OBJECT,
+  UPDATE_FILTER_OBJECT,
   PUSH_ITEMS_TO_STORE,
   REPLACE_ITEMS,
   CLEAR_ITEMS,
@@ -21,7 +22,7 @@ import {
   RESET_FILTERS
 } from '../constants';
 import _merge from 'lodash.merge';
-import {getFilters} from './utils';
+import {getFilters} from '../utils';
 import {makeQueryObject, makeQueryString} from '../apis/queries';
 const paginationDefault = {cursor: null, page: 1, skip: 0, take: 25, totalItems: 0};
 
@@ -60,6 +61,11 @@ export default (options, hooks) => (state = initialState, action) => {
 
     case UPDATE_QUERY_STRING:
       _state.queryString = _data.queryString;
+
+      return _state;
+
+    case UPDATE_FILTER_OBJECT:
+      _state.filterObject = _data.filterObject;
 
       return _state;
     
@@ -209,7 +215,7 @@ export default (options, hooks) => (state = initialState, action) => {
     //     value: ['f144y'],
     //     operator: null
     //   }],
-    //   sort: [{column: 'id', operator: 'DESC'}],
+    //   sort: [{property: 'id', operator: 'DESC'}],
     //   pagination: {skip: 1, take: 25}
     // }
 
@@ -217,7 +223,7 @@ export default (options, hooks) => (state = initialState, action) => {
       _state.selectedView = _data.view;
       
       _state.views = _state.views.map(view => {
-        if (view.id === _data.view) { // view specific filter runs
+        if (view.id === _state.selectedView) { // view specific filter runs
 
           /** FILTERING */
           if (_data.filters) {
@@ -246,7 +252,7 @@ export default (options, hooks) => (state = initialState, action) => {
           /** SORT FILTER */
           if (_data.sort) {
             view.columns.map(column => {
-              if (column.id === _data.sort.column) {
+              if (column.id === _data.sort.property) {
                 column.sort = _data.sort.operator;
               }
 
@@ -264,11 +270,6 @@ export default (options, hooks) => (state = initialState, action) => {
       });
 
       _state.loading = true;
-      
-      // Query string and object making
-      _state.filtersObject = getFilters({view: _data.view, state: _state});
-      _state.queryObject = makeQueryObject(_state.filtersObject);// Right now this is the same as the filterObj
-      _state.queryString = makeQueryString(_state.queryObject);
 
       return _state;
 

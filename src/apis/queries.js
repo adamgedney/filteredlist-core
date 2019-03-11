@@ -3,7 +3,8 @@ import createMemoryHistory from 'history/createMemoryHistory';
 import mockQueryString from '../../test/specs/mocks/queryString.mock';
 import {
   UPDATE_QUERY_STRING,
-  UPDATE_QUERY_OBJECT
+  UPDATE_QUERY_OBJECT,
+  UPDATE_FILTER_OBJECT
 } from '../constants';
 import {first, tap, filter} from 'rxjs/operators';
 import _merge from 'lodash.merge';
@@ -86,6 +87,28 @@ export default class{
 
       queryObject$.subscribe(() => {});
       return queryObject$;
+  }
+
+  /**
+   * Updates the store with a new filterObject entry
+   *
+   * @param {*} filterObject
+   * @returns
+   */
+  _writeFilterObjectToStore(filterObject) {
+    const filterObject$ = this.rxdux.dispatch({
+        type: UPDATE_FILTER_OBJECT,
+        data: {filterObject}
+      }, 'filterObject')
+      .pipe(
+        first(),
+        tap(filterObject => {
+          this.hooks.onFilterObjectUpdated$.next({filterObject});
+        })
+      );
+
+      filterObject$.subscribe(() => {});
+      return filterObject$;
   }
 
   /**
@@ -294,27 +317,60 @@ export default class{
    * @private
    */
   export function makeQueryObject({filters, sort, pagination}) {
-    const _filters = filters
-      .map(filter => ({ [filter.id]: filter.range || filter.value }))
-      .reduce((sum, query) => {
-        const key = Object.keys(query)[0];
+    const _filters = filters.reduce((acc, {id, value}) => {
+      let key = id;
+      // let value = filter[key];
 
-        // Check if the property to filter on exists already;
-        // Then check if it's an array.
-        // make it an array and push the value
-        if (sum.hasOwnProperty(key) && !(key.indexOf('sort-') > -1)) {
-          if (Array.isArray(sum[key])) {
-            sum[key].push(query[key]);// Add the new value
-          } else {
-            sum[key] = [sum[key]];// Extract the string value and transform to an array
-            sum[key].push(query[key]);//Add the new value
-          }
+      // Input can now be a filter object generated from state, or generated from a query string. They have 2 different structures
+      // if (filter.hasOwnProperty('id') && filter.hasOwnProperty('value') ) {
+      //   key = filter.id;
+      //   value = filter.value;
+      // }
+
+      const isSortKey = key.indexOf('sort-') > -1;
+      const paginationKeys = ['skip', 'take', 'page', 'cursor'];
+
+      if (isSortKey) { return acc; }
+      if (paginationKeys.includes(key)) { return acc; }
+
+      // Check if the property to filter on exists already;
+      // Then check if it's an array.
+      // make it an array and push the value
+      if (acc.hasOwnProperty(key)) {
+        if (Array.isArray(acc[key])) {
+          acc[key].push(value);// Add the new value
         } else {
-          sum[key] = query[key];// First run, add the string
+          acc[key] = [acc[key]];// Extract the string value and transform to an array
+          acc[key].push(value);//Add the new value
         }
-        // return the mutated object
-        return sum;
-      }, {});
+      } else {
+        acc[key] = value;// First run, add the string
+      }
+      // return the mutated object
+      return acc;
+    }, {});
+
+    // const _filters = filters
+    //   .map(filter => ({ [filter.id]: filter.range || filter.value }))
+    //   .reduce((sum, query) => {
+    //     const key = Object.keys(query)[0];
+
+    //     // Check if the property to filter on exists already;
+    //     // Then check if it's an array.
+    //     // make it an array and push the value
+    //     if (sum.hasOwnProperty(key) && !(key.indexOf('sort-') > -1)) {
+    //       if (Array.isArray(sum[key])) {
+    //         sum[key].push(query[key]);// Add the new value
+    //       } else {
+    //         sum[key] = [sum[key]];// Extract the string value and transform to an array
+    //         sum[key].push(query[key]);//Add the new value
+    //       }
+    //     } else {
+    //       sum[key] = query[key];// First run, add the string
+    //     }
+    //     // return the mutated object
+    //     return sum;
+    //   }, {});
 
 
     const _sort = sort
@@ -323,12 +379,15 @@ export default class{
         return acc;
       }, {});
 
-      const _pagination = {
+      let _pagination = {
         skip: pagination.skip,
         take: pagination.take,
-        page: pagination.page,
-        cursor: pagination.cursor
+        page: pagination.page
       };
+
+      if (typeof pagination.cursor !== 'undefined') {
+        _pagination.cursor = pagination.cursor;
+      }
 
       return {..._filters, ..._sort, ..._pagination};
   };
@@ -415,7 +474,8 @@ export default class{
         } else {
           
           acc.filters.push({
-            [key]: value
+            id: key, 
+            value
           });
         }
 

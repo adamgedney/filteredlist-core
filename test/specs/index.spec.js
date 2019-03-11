@@ -2,7 +2,6 @@ import { expect, assert } from 'chai';
 import FilteredlistCore from 'Src/index.js';
 import Rxdux from 'Src/rxdux';
 import optionsExample from 'Src/options.example.js';
-//import Collo from 'Lib/index.min.js';
 
 import Queries from 'Src/apis/queries';
 import Workspace from 'Src/apis/workspace';
@@ -10,13 +9,17 @@ import Data from 'Src/apis/data';
 import Settings from 'Src/apis/settings';
 import Filters from 'Src/apis/filters';
 import Hooks from 'Src/hooks';
+import mockViews from './mocks/views.mock';
 
 import { __TEST_RUNNER } from 'Src/constants';
 
 describe('The filteredlist-core library', () => {
   let fl;
+  
   beforeEach(function() {
     fl = new FilteredlistCore(optionsExample);
+
+    // fl.views.setViews(mockViews);
   });
 
   it('should instantiate', () => expect(fl).to.be.instanceOf(FilteredlistCore));
@@ -48,8 +51,34 @@ describe('The filteredlist-core library', () => {
   );
 
   it('_onPageLoad should pull the current query string from the url, then return it and the query object data', done => {
-    expect(fl._onPageLoad()).to.have.keys(['queryString', 'queryObject', 'filterObject']);
+    // expect(fl._onPageLoad()).to.have.keys(['queryString', 'filterObject', 'currentView', 'queryObject']);
+    expect(fl._onPageLoad()).to.have.keys(['queryString']);
     done();
   });
+
+
+  it('_onPageLoad should update the store with the filterObject, queryObject, queryString, and selectedView', done => {
+    let called = false;
+    const {queryString, queryObject, filterObject, currentView} = fl._onPageLoad();
+
+    fl.rxdux.store$.subscribe(state => {
+      if (!called) {
+        expect(state.filterObject).to.eql(filterObject);
+        done(); called = true;
+      }
+    });
+  });
+
+  // it('_onPageLoad should trigger the onFilterChange$ hook', done => {
+  //   let called = false;
+  //   const {queryString, queryObject, filterObject, currentView} = fl._onPageLoad();
+
+  //   fl.onFilterChange$.subscribe((data) => {
+  //     if (!called) {
+  //       expect(data).to.eql(filterObject);
+  //       done(); called = true;
+  //     }
+  //   });
+  // });
 
 });

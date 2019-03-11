@@ -1,5 +1,5 @@
 export default {
-  "filtersObject": [
+  "filterObject": [
     {
       "id": "newtons",
       "type": "select",

@@ -4,7 +4,7 @@
 export const getFilters = function({view, filterGroup, state}){
   const viewObject = state.views.filter(_view => _view.id === view)[0];
   const sort = viewObject.columns.reduce((acc,column) => {
-    if(column.hasOwnProperty('sort')) { 
+    if(column.hasOwnProperty('sort') && (column.sort || column.sort === null)) { 
       acc = acc.concat([{property: column.property, sort: column.sort}]);
     }
     return acc;

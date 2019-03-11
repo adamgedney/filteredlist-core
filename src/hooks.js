@@ -104,6 +104,7 @@ export default class{
      */
     onQueryStringUpdated$ = new Subject();
     onQueryObjectUpdated$ = new Subject();
+    onFilterObjectUpdated$ = new Subject();
 
     onDataReplaced$ = new Subject();
     onItemUpdated$ = new Subject();

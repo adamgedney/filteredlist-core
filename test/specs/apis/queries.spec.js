@@ -28,21 +28,24 @@ describe('The Queries API ', () => {
     "sort-primaryGenre": "ASC",
   };
   const base64Regex = /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/;
-  const _mockBuiltQO = {
+  const _mockBuiltFO = {
     "filters": [
       {
-        "newtons": [
+        "id": "newtons",
+        "value": [
           "f144y"
         ]
       },
       {
-        "state": [
+        "id": "state",
+        "value": [
           "87fc3814-4cb9-43a5-b723-63ecebd65c5a",
           "cdc3d520-8b74-46ac-9f4c-8f27d04ab49f"
         ]
       },
       {
-        "languages": [
+        "id": "languages",
+        "value": [
           "9d5741e1-b482-4027-8c57-45193073ef12"
         ]
       }
@@ -83,6 +86,7 @@ describe('The Queries API ', () => {
   it('should have [_makeFilterObjectFromQueryString] method', () => assert.typeOf(queriesApi._makeFilterObjectFromQueryString, 'function'));
   it('should have [_writeQueryStringToStore] method', () => assert.typeOf(queriesApi._writeQueryStringToStore, 'function'));
   it('should have [_writeQueryObjectToStore] method', () => assert.typeOf(queriesApi._writeQueryObjectToStore, 'function'));
+  it('should have [_writeFilterObjectToStore] method', () => assert.typeOf(queriesApi._writeQueryObjectToStore, 'function'));
   it('should have [getQueryObject] method', () => assert.typeOf(queriesApi.getQueryObject, 'function'));
   it('should have [getQueryString] method', () => assert.typeOf(queriesApi.getQueryString, 'function'));
   it('should have [getFullUrl] method', () => assert.typeOf(queriesApi.getFullUrl, 'function'));
@@ -94,7 +98,7 @@ describe('The Queries API ', () => {
     // Set the view(beforeEach) so we have the correct filters in the store
     const filters = getFilters({view: 'eli', state: mockState});
     const queryObj = queriesApi._makeQueryObject(filters);
-  
+ 
     expect(queryObj).to.eql(mockQueryObj);
     done();
   });
@@ -112,9 +116,8 @@ describe('The Queries API ', () => {
     expect(queriesApi._writeQueryStringToUrl(undefined, {writeQueryStringToUrl: undefined})).to.be.undefined); 
   
   it('_makeFilterObjectFromQueryString method should convert a query object to a query string', () => {
-    const _builtQO = queriesApi._makeFilterObjectFromQueryString(mockQueryString);
-   
-    expect(_builtQO).to.eql(_mockBuiltQO);
+    const _builtFO = queriesApi._makeFilterObjectFromQueryString(mockQueryString);
+    expect(_builtFO).to.eql(_mockBuiltFO);
   });
   
   it('_writeQueryStringToStore method should update the store with a new query string', done => {

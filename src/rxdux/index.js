@@ -12,7 +12,7 @@ export default class{
     this.instance = instance;
     this.reducer = reducer(instance.options, this.hooks);
     this.store = createStore(this.reducer);
-    this.store$ = new BehaviorSubject(initialState);
+    this.store$ = new BehaviorSubject(initialState); // Because it's a BehaviorSubject we can do store$.value to get he last emitted value
 
     // Update the observable store$
     this.store.subscribe( () => this.store$.next(this.store.getState()) );
