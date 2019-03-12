@@ -34,6 +34,12 @@ describe('The filteredlist-core library', () => {
   it('should instantiate filters', () => expect(fl.filters).to.be.instanceOf(Filters));
   it('should instantiate the Rxdux store', () => expect(fl.rxdux).to.be.instanceOf(Rxdux));
 
+  it('should have [_setupReloadListener] method', () => assert.typeOf(fl._setupReloadListener, 'function'));
+  it('should have [_setupHistory] method', () => assert.typeOf(fl._setupHistory, 'function'));
+  it('should have [_setViews] method', () => assert.typeOf(fl._setViews, 'function'));
+  it('should have [_onPageLoad] method', () => assert.typeOf(fl._onPageLoad, 'function'));
+  it('should have [_makeGlobal] method', () => assert.typeOf(fl._makeGlobal, 'function'));
+
   it('should return the options', () => expect(fl.options).to.deep.equal(optionsExample));
 
   it('should be able to update the Rxdux store', () => {
@@ -53,34 +59,29 @@ describe('The filteredlist-core library', () => {
       .forEach(hook => assert.property(fl, hook))
   );
 
-  it('_onPageLoad should pull the current query string from the url, then return it and the query object data', done => {
-    expect(fl._onPageLoad()).to.have.keys(['queryString', 'filterObject']);
-    done();
-  });
-
-
   it('_onPageLoad should update the store with the filterObject, queryObject, queryString, and selectedView', done => {
-    fl._onPageLoad();
-    
-    const state = fl.rxdux.store$.value;
 
-    expect(state.filterObject).to.eql(mockBuiltFilterObj);
-    expect(state.queryObject).to.eql(mockQueryObj);
-    expect(state.queryString).to.equal(mockQueryString.replace('&view=eli', ''));
-    expect(state.selectedView).to.equal('eli');
-    done();
+    fl._onPageLoad()
+      .subscribe(state => {
+        expect(state.filterObject).to.eql(mockBuiltFilterObj);
+        expect(state.queryObject).to.eql(mockQueryObj);
+        expect(state.queryString).to.equal(mockQueryString.replace('&view=eli', ''));
+        expect(state.selectedView).to.equal('eli');
+        done();
+      })    
   });
 
   it('_onPageLoad should trigger the onFilterChange$ hook', done => {
     let called = false;
-    const {queryString, queryObject, filterObject, currentView} = fl._onPageLoad();
 
     fl.onFilterChange$.subscribe((data) => {
       if (!called) {
-        expect(data).to.eql(filterObject);
+        expect(data).to.have.keys(['change', 'state', 'replaceItems']);
         done(); called = true;
       }
     });
+
+    fl._onPageLoad();
   });
 
 });

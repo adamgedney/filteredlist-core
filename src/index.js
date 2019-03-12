@@ -6,15 +6,20 @@ import Queries from './apis/queries';
 import Settings from './apis/settings';
 import Workspace from './apis/workspace';
 import Hooks from './hooks';
-
+import createHistory from 'history/createBrowserHistory';
+import createMemoryHistory from 'history/createMemoryHistory';
 
 export default class{
   constructor(options) {
     this.options = options; //  @todo add options schema validation in the future
     this.initialQueryString = '';
+    this._isPhantomHistory = false; 
+    this.history = options.history;
+    this._setupHistory();
+
     /** 
      * Need access to this.options and there is a preference in order of instantiation 
-     * so we need this setup procedure 
+     * so we need this setup procedure as is
     */
     this.hooks = this._setupHooks();
     this.rxdux = new Rxdux(this, this.hooks); 
@@ -26,7 +31,55 @@ export default class{
     this.filters = new Filters(this.rxdux, this.options, this);
 
     this._setViews(this.options.views);
+    this._setupReloadListener();
     this._onPageLoad();
+    this._makeGlobal();
+
+    return this;
+  }
+
+  /**
+   * With a full instance built, expose it as a global, when not in a testing env
+   *
+   */
+  _makeGlobal() {
+    try{
+      if(!window && !window.Filteredlist) {window['Filteredlist'] = {};}
+      if(window && window.Filteredlist && !window.Filteredlist.instance) {window.Filteredlist.instance = {};}
+
+      window.Filteredlist.instance[this.options.id || Math.random()*10000] = this;
+    }catch(e){}
+  }
+
+  /**
+   * PUSH - the filteredlist wrote to the url but didn't load the page. The user handles getting data from the onFIlterChange hook
+   * POP - the page reloaded. Trigger a filter run
+   * REPLACE - something triggered the url to change and the page to load that url
+   *
+   */
+  _setupReloadListener() {
+    const unsubscribeFromHistoryChanges = this.history.listen((location, action) => {
+      if (action !== 'PUSH') { // PUSH, REPLACE, POP
+        this._onPageLoad(location.search); //  Pass it the queryString
+      }
+    });
+
+    // unsubscribeFromHistoryChanges(); // cleanup
+  }
+
+  /** 
+   * Memory History is used by the test runner as there's no DOM. 
+   * Passed in the constructor as history.
+   * createHistory requires a DOM.
+   * */
+  _setupHistory() {
+    if (!this.history) {
+      try{ this.history = createHistory(); }
+      catch(e) { 
+        this.history = this.options.history || createMemoryHistory();
+        this._isPhantomHistory = true; 
+      }
+    }   
   }
 
   /**
@@ -57,55 +110,19 @@ export default class{
 
   /**
    * Setup page load listeners to handle query string processing
-   *
+   * OPtionally accepts a query string to run
+   * @param {*} queryString
+   * @returns
    */
-  _onPageLoad(){
-    // GEt the query string, generate a query object and filter object, write them to the store
-    const queryString = this.queries._readQueryStringFromURL();
-    const filterObject = this.queries._makeFilterObjectFromQueryString(queryString);
-
-
-    // this.hooks.onFilterChange$.subscribe(change => {
-      // console.log('FILTERS RAN____ ', JSON.stringify(filterObject, null, 2));
-    // })
-    // Now we've synced the store. Go ahead and run the filter command
-    this.filters.run(filterObject)
-    // .subscribe(data => {
-    //   console.log('FILTERS RAN____ ', data);
-    // })
-
-    // console.log('_onPageLoad ', queryString,
-    // queryObject,
-    // filterObject,
-    // currentView);
-  //   if (document.readyState == "complete") {
-  //     alert("Your page is loaded");
-  // }
-  // Return Value: A String, representing the status of the current document.
-  
-  // One of five values:
-  
-  // uninitialized - Has not started loading yet
-  // loading - Is loading
-  // loaded - Has been loaded
-  // interactive - Has loaded enough and the user can interact with it
-  // complete - Fully loaded
-
-    return {
-      queryString,
-      filterObject
-      // queryObject,
-      // currentView
+  _onPageLoad(_queryString){
+    let queryString = _queryString;;
+    
+    if (!queryString) {
+      queryString = this.queries._readQueryStringFromURL();
     }
-  }
 
-  /**
-   * Main procedures for building query objects and query strings
-   *
-   */
-  _onFilterChange() {
-    //onFilterChange$, onSort$, onPaginationChange$ 
-
-    // onLoading Change start can be our trigger to build the query string and object.
+    return this.filters.run(
+      this.queries._makeFilterObjectFromQueryString(queryString) // filterObject
+    );
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "filteredlist-core",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "The core api behind the filteredlist UIs. Used for running filter commands and maintaining an internal store.",
   "main": "index.js",
   "scripts": {
@@ -13,7 +13,7 @@
     "cover": "nyc --reporter=lcov --reporter=text npm run test",
     "coveralls": "nyc --reporter=lcov --reporter=text npm run test && cat ./coverage/lcov.info | coveralls",
     "lint": "eslint src test",
-    "prepublish": "npm run clean && npm run lint && npm run test && npm run build"
+    "prepublish": "npm run test && npm run build"
   },
   "repository": {
     "type": "git",

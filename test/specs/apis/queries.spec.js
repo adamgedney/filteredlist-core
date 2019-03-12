@@ -66,7 +66,7 @@ describe('The Queries API ', () => {
 
   beforeEach(function() {
     history = createMemoryHistory();
-    queriesApi = new QueriesApi(rxdux, optionsExample, {hooks}, history);
+    queriesApi = new QueriesApi(rxdux, optionsExample, {hooks, history});
     viewsApi = new ViewsApi(rxdux, optionsExample, {hooks});
 
     viewsApi.setViews(mockViews)

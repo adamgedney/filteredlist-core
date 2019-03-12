@@ -43,7 +43,7 @@ describe('The Filters API ', () => {
 
   beforeEach(function() {
     history = createMemoryHistory();
-    queries = new Queries(rxdux, optionsExample, {hooks}, history);
+    queries = new Queries(rxdux, optionsExample, {hooks, history});
     viewsApi = new ViewsApi(rxdux, optionsExample, {hooks});
     dataApi = new DataApi(rxdux, optionsExample, {hooks});
     filtersApi = new FiltersApi(rxdux, optionsExample, {hooks, queries, data: dataApi, views});
@@ -58,6 +58,7 @@ describe('The Filters API ', () => {
   it('should have [getPaginationFilters] method', () => assert.typeOf(filtersApi.getPaginationFilters, 'function'));
   it('should have [run] method', () => assert.typeOf(filtersApi.run, 'function'));
   it('should have [resetFilters] method', () => assert.typeOf(filtersApi.resetFilters, 'function'));
+  it('should have [activateProxyHookSubscriptions] method', () => assert.typeOf(filtersApi.activateProxyHookSubscriptions, 'function'));
 
   it('getFilters method should return an Observable that plucks the filters from the current rxdux state', (done) => {   
     let called = false;
@@ -111,13 +112,13 @@ describe('The Filters API ', () => {
       });
   });
 
-  it('run method should trigger the _onFilterChange$ hook to fire', done => {   
+  it('run method should trigger the onFilterChange$ hook to fire', done => {   
     let called = false;
     
-    hooks._onFilterChange$
+    hooks.onFilterChange$
       .subscribe(d => {
         if(!called) {
-          expect(d).to.have.keys(['change', 'state']);
+          expect(d).to.have.keys(['change', 'state', 'replaceItems']);
           done();called = true;
         }
       });
@@ -125,10 +126,24 @@ describe('The Filters API ', () => {
       assert.ok(filtersApi.run(exampleFilterRun));
   });
 
-  it('run method should trigger the onFilterChange$ hook to fire', done => {   
+  it('run method should trigger the onPaginationChange$ hook to fire', done => {   
     let called = false;
     
-    hooks.onFilterChange$
+    hooks.onPaginationChange$
+      .subscribe(d => {
+        if(!called) {
+          expect(d).to.have.keys(['change', 'state', 'replaceItems']);
+          done();called = true;
+        }
+      });
+
+      assert.ok(filtersApi.run(exampleFilterRun));
+  });
+
+  it('run method should trigger the onSort$ hook to fire', done => {   
+    let called = false;
+    
+    hooks.onSort$
       .subscribe(d => {
         if(!called) {
           expect(d).to.have.keys(['change', 'state', 'replaceItems']);
@@ -176,5 +191,19 @@ describe('The Filters API ', () => {
           done();called = true;
         }
       });
+  });
+
+  it('resetFilters method should trigger the onFiltersReset$ hook to fire', done => {   
+    let called = false;
+
+    hooks.onFiltersReset$
+      .subscribe(d => {
+        if(!called) {
+          expect(d).to.have.keys(['change', 'state', 'replaceItems']);
+          done();called = true;
+        }
+      });
+
+      assert.ok(filtersApi.resetFilters());
   });
 });

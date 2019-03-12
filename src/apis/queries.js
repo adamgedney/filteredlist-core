@@ -1,5 +1,3 @@
-import createHistory from 'history/createBrowserHistory';
-import createMemoryHistory from 'history/createMemoryHistory';
 import mockQueryString from '../../test/specs/mocks/queryString.mock';
 import {
   UPDATE_QUERY_STRING,
@@ -10,22 +8,14 @@ import {first, tap, filter} from 'rxjs/operators';
 import _merge from 'lodash.merge';
 
 export default class{
-  constructor(rxdux, options, instance, history) {
+  constructor(rxdux, options, instance) {
     this.rxdux = rxdux;
     this.hooks = instance.hooks;
     this.views = instance.views;
-    this._isPhantomHistory = false;
+    this._isPhantomHistory = instance._isPhantomHistory;
+    this.history = instance.history;
 
-    /** 
-     * Memory History is used by the test runner as there's no DOM. 
-     * Passed in the constructor as history.
-     * createHistory requires a DOM.
-     * */
-    try{ this.history = createHistory(); }
-    catch(e) { 
-      this.history = history || createMemoryHistory();
-      this._isPhantomHistory = true; 
-    }
+    
   }
 
   /**
@@ -119,9 +109,11 @@ export default class{
  * @private
  */
   _writeQueryStringToUrl(queryString, options) {
-    
     // Only allow if the config file specifies
-    if (options.writeQueryStringToUrl && (queryString || queryString === null)) {
+    if (options.writeQueryStringToUrl 
+        && (queryString || queryString === null) 
+        && this.history.search !== queryString
+    ) {
       // const path = this.history.location.href.split('?')[0].split(this.history.location.host)[1];
       const path = this.history.location.pathname;
 
@@ -145,7 +137,7 @@ export default class{
       * history.push('/home', { some: 'state' }) 
       * https://www.npmjs.com/package/history
       */
-      this.history.replace({search: replaceUrl});
+      this.history.push({search: replaceUrl}); // replace triggers a pop and the page loads, push triggers pushState and the url updates but doesn't reload the page
 
       return this.history;
     }
@@ -243,34 +235,7 @@ export default class{
    * @returns
    */
   _makeFilterQueryData({filterObject, queryObject, queryString}) {
-    let _filterObject = {}; 
-    let _queryObject = {}; 
-    let _queryString = '';
-
-    // First we need to get a query Object
-    if (queryString) {
-
-      _queryString = queryString;
-      _filterObject = this._makeFilterObjectFromQueryString(_queryString);
-      _queryObject = this._makeQueryObject(_filterObject);
-    } else if (filterObject) {
-
-      _filterObject = filterObject;
-      _queryObject = this._makeQueryObject(_filterObject);
-      _queryString = this._makeQueryString(_queryObject);
-    } else if (queryObject) {
-
-      _queryObject = queryObject;
-      _queryString = this._makeQueryString(_queryObject);
-      _filterObject = this._makeFilterObjectFromQueryString(_queryString);
-    }
-
-    return {
-      filterObject : _filterObject, 
-      queryObject: _queryObject, 
-      queryString: _queryString, 
-      view: _filterObject.view
-    }
+    return makeFilterQueryData({filterObject, queryObject, queryString});
   }
 
   /**
@@ -343,10 +308,11 @@ export default class{
    * @returns
    */
   getFullUrl() {
-    let window = window;
-    if(!window) { return 'https://iliketurtles.com/?state=87fc3814-4cb9-43a5-b723-63ecebd65c5a,cdc3d520-8b74-46ac-9f4c-8f27d04ab49f&view=eli'; }
-
-    return window.location.href;
+    try{
+      return window.location.href;
+    } catch(e){
+      return 'https://iliketurtles.com/?state=87fc3814-4cb9-43a5-b723-63ecebd65c5a,cdc3d520-8b74-46ac-9f4c-8f27d04ab49f&view=eli';
+    }
   }
 
   /**
@@ -515,4 +481,42 @@ export default class{
       });
 
       return obj;
+  }
+
+  /**
+   * Helper for building filter query data objects
+   *
+   * @export
+   * @param {*} {filterObject, queryObject, queryString}
+   * @returns
+   */
+  export function makeFilterQueryData({filterObject, queryObject, queryString}) {
+    let _filterObject = {}; 
+    let _queryObject = {}; 
+    let _queryString = '';
+
+    // First we need to get a query Object
+    if (queryString) {
+
+      _queryString = queryString;
+      _filterObject = makeFilterObjectFromQueryString(_queryString);
+      _queryObject = makeQueryObject(_filterObject);
+    } else if (filterObject) {
+
+      _filterObject = filterObject;
+      _queryObject = makeQueryObject(_filterObject);
+      _queryString = makeQueryString(_queryObject);
+    } else if (queryObject) {
+
+      _queryObject = queryObject;
+      _queryString = makeQueryString(_queryObject);
+      _filterObject = makeFilterObjectFromQueryString(_queryString);
+    }
+
+    return {
+      filterObject : _filterObject, 
+      queryObject: _queryObject, 
+      queryString: _queryString, 
+      view: _filterObject.view
+    }
   }

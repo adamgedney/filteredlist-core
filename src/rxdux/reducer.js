@@ -23,7 +23,7 @@ import {
 } from '../constants';
 import _merge from 'lodash.merge';
 import {getFilters} from '../utils';
-import {makeQueryObject, makeQueryString} from '../apis/queries';
+import {makeFilterQueryData} from '../apis/queries';
 const paginationDefault = {cursor: null, page: 1, skip: 0, take: 25, totalItems: 0};
 
 /** 
@@ -220,8 +220,12 @@ export default (options, hooks) => (state = initialState, action) => {
     // }
 
       // Update the selectedView with the current filter instructions
+      const {queryObject, queryString, filterObject} = makeFilterQueryData({filterObject: _data});
       _state.selectedView = _data.view;
-      
+      _state.queryObject = queryObject;
+      _state.queryString = queryString;
+      _state.filterObject = _data;
+
       _state.views = _state.views.map(view => {
         if (view.id === _state.selectedView) { // view specific filter runs
 

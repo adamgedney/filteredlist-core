@@ -15,49 +15,50 @@ export default class{
     this.queries = instance.queries;
     this.data = instance.data;
 
-    this.initEventListeners();
+    this.activateProxyHookSubscriptions();
   }
 
-  initEventListeners() {
+  /**
+  * Private hooks braodcast from the run function in src/apis/filters.run, after Reducer execution
+  * The reducer is building the queryObject, filterObject, and queryString for us.
+  * This relaceItems callback can be triggered by the host application after it has processed filter data.If they never 
+  * call this callback then they need to manually push to the store themselves
+  *
+  */
+  activateProxyHookSubscriptions() {
+    const {_onFilterChange$, onFilterChange$, _onPaginationChange$, onPaginationChange$, _onSort$, onSort$, _onFiltersReset$, onFiltersReset$} = this.hooks;
 
-    /** Private hooks braodcast from the run function, after Reducer execution
-     * The reducer is building the queryObject, filterObject, and queryString for us
-     * */
-    this.hooks._onFilterChange$.subscribe((data) => {
-      const {change, state} = data;
-      const {queryString} = state;
+    _onFilterChange$
+      .subscribe(({change, state}) =>
+        onFilterChange$.next({change, state, 
+          replaceItems: ({items, idProp = 'id', totalItems}) => 
+            this.data.replaceItems({items, idProp, totalItems})
+        })
+      );
 
-      /** 
-       * 1. Write query string to the url
-       * 2. register the onFilterChange$ callback to do a replaceData
-       * 3. replace data in store
-       */
-      this.queries._writeQueryStringToUrl(queryString, this.options);
-     
-      /** This callback can be triggered by the host application after it has processed filter data */
-      this.hooks.onFilterChange$.next({
-        change, 
-        state, 
-        replaceItems: ({items, idProp = 'id', totalItems}) => {
+    _onPaginationChange$
+      .subscribe(({change, state}) =>
+        onPaginationChange$.next({change, state, 
+          replaceItems: ({items, idProp = 'id', totalItems}) => 
+            this.data.replaceItems({items, idProp, totalItems})
+        })
+      );
 
-          // Handle pushing to store for the app developer.
-          // If they never call this callback then they needs to manually push to the store themselves
-          this.data.replaceItems({items, idProp, totalItems});
-      }});
-    }); 
+    _onSort$
+      .subscribe(({change, state}) =>
+        onSort$.next({change, state, 
+          replaceItems: ({items, idProp = 'id', totalItems}) => 
+            this.data.replaceItems({items, idProp, totalItems})
+        })
+      );
 
-    // this.hooks._onFiltersReset$.subscribe(data => {
-    //   this.hooks.onFiltersReset$.next(data);
-    // }); 
-
-    // this.hooks._onPaginationChange$.subscribe(data => {
-    //   this.hooks.onPaginationChange$.next(data);
-    // });
-
-    // this.hooks._onSort$.subscribe(data => {
-    //   this.hooks.onSort$.next(data);
-    // });
-
+    _onFiltersReset$
+      .subscribe(({change, state}) =>
+        onFiltersReset$.next({change, state, 
+          replaceItems: ({items, idProp = 'id', totalItems}) => 
+            this.data.replaceItems({items, idProp, totalItems})
+        })
+      );
 
   }
 
@@ -117,12 +118,6 @@ export default class{
    * @returns
    */
   run(filterObject = {}) {
-    // Sideffect. Build filterquery data and write it to the store
-    this.views.selectView(filterObject.view);
-    this.queries._writeFilterQueryDataToStore(
-      this.queries._makeFilterQueryData({filterObject})
-    );
-
     const state$ = this.rxdux.dispatch({
       type: RUN_FILTER,
       data: filterObject
@@ -137,6 +132,7 @@ export default class{
           this.queries._writeQueryStringToUrl(state.queryString, this.options);
         }
 
+        // These _on hooks get picked up by the src/index file in the [initSubscriptions] fn
         if (filterObject.sort) { this.hooks._onSort$.next({view: filterObject.view, sort: filterObject.sort, state}); }
         if (filterObject.pagination) { this.hooks._onPaginationChange$.next({view: filterObject.view, pagination: filterObject.pagination, state}); }
         if (filterObject.filters) { this.hooks._onFilterChange$.next({change: filterObject, state}); }
@@ -154,12 +150,17 @@ export default class{
    * @returns
    */
   resetFilters() {
-    this.rxdux.dispatch({
+    const state$ = this.rxdux.dispatch({
       type: RESET_FILTERS
-    });
-
-    this.hooks._onFiltersReset$.next({});
-    this.hooks.onLoadingChange$.next({loading: true});
+    }, 'state')
+    .pipe(
+      first(),
+      tap(state => {
+        this.hooks._onFiltersReset$.next({change: {}, state});
+        this.hooks.onLoadingChange$.next({loading: true});
+      })
+    );
+    state$.subscribe(() => {});
 
     return true;
   }
