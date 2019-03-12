@@ -8,6 +8,7 @@ import Workspace from './apis/workspace';
 import Hooks from './hooks';
 import createHistory from 'history/createBrowserHistory';
 import createMemoryHistory from 'history/createMemoryHistory';
+var pjson = require('../package.json');
 
 export default class{
   constructor(options) {
@@ -44,6 +45,7 @@ export default class{
    */
   _makeGlobal() {
     try{
+      console.log(`react-filteredlist | version ${pjson.version}`);
       if(!window && !window.Filteredlist) {window['Filteredlist'] = {};}
       if(window && window.Filteredlist && !window.Filteredlist.instance) {window.Filteredlist.instance = {};}
 
