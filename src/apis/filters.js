@@ -11,6 +11,7 @@ export default class{
     this.options = options;
     this.rxdux = rxdux;
     this.hooks = instance.hooks;
+    this.views = instance.views;
     this.queries = instance.queries;
     this.data = instance.data;
 
@@ -115,22 +116,12 @@ export default class{
    * @param {*} queryString
    * @returns
    */
-  run(filterData = {}, queryString) {
-    let filterObject = filterData;
-
-    // // If the queryString is passed in alternatively, then we can build the rest of our data
-    if (queryString) {
-      const queryString = this.queries._readQueryStringFromURL();
-      filterObject = this.queries._makeFilterObjectFromQueryString(queryString);
-
-      this.queries._writeQueryStringToStore(queryString);
-    }
-    
-    const queryObject = this.queries._makeQueryObject(filterObject);
-
-    // this.views.selectView(filterObject.view);
-    this.queries._writeQueryObjectToStore(queryObject);
-    this.queries._writeFilterObjectToStore(filterObject);
+  run(filterObject = {}) {
+    // Sideffect. Build filterquery data and write it to the store
+    this.views.selectView(filterObject.view);
+    this.queries._writeFilterQueryDataToStore(
+      this.queries._makeFilterQueryData({filterObject})
+    );
 
     const state$ = this.rxdux.dispatch({
       type: RUN_FILTER,

@@ -13,6 +13,7 @@ export default class{
   constructor(rxdux, options, instance, history) {
     this.rxdux = rxdux;
     this.hooks = instance.hooks;
+    this.views = instance.views;
     this._isPhantomHistory = false;
 
     /** 
@@ -234,6 +235,55 @@ export default class{
     return makeFilterObjectFromQueryString(str);
   }
 
+
+  /**
+   * Utility for batch making all the necessary data types from a single variable input
+   *
+   * @param {*} {filterObject, queryObject, queryString}
+   * @returns
+   */
+  _makeFilterQueryData({filterObject, queryObject, queryString}) {
+    let _filterObject = {}; 
+    let _queryObject = {}; 
+    let _queryString = '';
+
+    // First we need to get a query Object
+    if (queryString) {
+
+      _queryString = queryString;
+      _filterObject = this._makeFilterObjectFromQueryString(_queryString);
+      _queryObject = this._makeQueryObject(_filterObject);
+    } else if (filterObject) {
+
+      _filterObject = filterObject;
+      _queryObject = this._makeQueryObject(_filterObject);
+      _queryString = this._makeQueryString(_queryObject);
+    } else if (queryObject) {
+
+      _queryObject = queryObject;
+      _queryString = this._makeQueryString(_queryObject);
+      _filterObject = this._makeFilterObjectFromQueryString(_queryString);
+    }
+
+    return {
+      filterObject : _filterObject, 
+      queryObject: _queryObject, 
+      queryString: _queryString, 
+      view: _filterObject.view
+    }
+  }
+
+  /**
+   * Batch write filterQuery data to the store
+   *
+   * @param {*} filterQueryData
+   */
+  _writeFilterQueryDataToStore({filterObject, queryObject, queryString}) {
+    this._writeQueryStringToStore(queryString);
+    this._writeQueryObjectToStore(queryObject);
+    this._writeFilterObjectToStore(filterObject);
+  }
+
   /**
   * Converts a query String to a base 64 query.
   * Supports browser and node environments
@@ -350,29 +400,6 @@ export default class{
       return acc;
     }, {});
 
-    // const _filters = filters
-    //   .map(filter => ({ [filter.id]: filter.range || filter.value }))
-    //   .reduce((sum, query) => {
-    //     const key = Object.keys(query)[0];
-
-    //     // Check if the property to filter on exists already;
-    //     // Then check if it's an array.
-    //     // make it an array and push the value
-    //     if (sum.hasOwnProperty(key) && !(key.indexOf('sort-') > -1)) {
-    //       if (Array.isArray(sum[key])) {
-    //         sum[key].push(query[key]);// Add the new value
-    //       } else {
-    //         sum[key] = [sum[key]];// Extract the string value and transform to an array
-    //         sum[key].push(query[key]);//Add the new value
-    //       }
-    //     } else {
-    //       sum[key] = query[key];// First run, add the string
-    //     }
-    //     // return the mutated object
-    //     return sum;
-    //   }, {});
-
-
     const _sort = sort
       .reduce((acc, curr) => {
         acc[`sort-${curr.property}`] = curr.sort;
@@ -380,9 +407,9 @@ export default class{
       }, {});
 
       let _pagination = {
-        skip: pagination.skip,
-        take: pagination.take,
-        page: pagination.page
+        skip: Number(pagination.skip),
+        take: Number(pagination.take),
+        page: Number(pagination.page)
       };
 
       if (typeof pagination.cursor !== 'undefined') {
@@ -464,7 +491,7 @@ export default class{
           acc.view = value[0];
         } else if (['skip', 'take', 'page', 'cursor'].includes(key)) {
           
-          acc.pagination[key] = value[0]; // un arrayify pagination values
+          acc.pagination[key] = Number(value[0]); // un arrayify pagination values
         } else if (key.indexOf('sort-') > -1) {
           
           acc.sort.push({

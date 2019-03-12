@@ -57,9 +57,9 @@ describe('The Queries API ', () => {
       }
     ],
     "pagination": {
-      "skip": "0",
-      "take": "25",
-      "page": "1"
+      "skip": 0,
+      "take": 25,
+      "page": 1
     },
     "view": "eli"
   };
@@ -84,6 +84,8 @@ describe('The Queries API ', () => {
   it('should have [_readQueryStringFromURL] method', () => assert.typeOf(queriesApi._readQueryStringFromURL, 'function'));
   it('should have [_parseParams] method', () => assert.typeOf(queriesApi._parseParams, 'function'));
   it('should have [_makeFilterObjectFromQueryString] method', () => assert.typeOf(queriesApi._makeFilterObjectFromQueryString, 'function'));
+  it('should have [_makeFilterQueryData] method', () => assert.typeOf(queriesApi._makeFilterQueryData, 'function'));
+  it('should have [_writeFilterQueryDataToStore] method', () => assert.typeOf(queriesApi._writeFilterQueryDataToStore, 'function'));
   it('should have [_writeQueryStringToStore] method', () => assert.typeOf(queriesApi._writeQueryStringToStore, 'function'));
   it('should have [_writeQueryObjectToStore] method', () => assert.typeOf(queriesApi._writeQueryObjectToStore, 'function'));
   it('should have [_writeFilterObjectToStore] method', () => assert.typeOf(queriesApi._writeQueryObjectToStore, 'function'));
@@ -119,7 +121,31 @@ describe('The Queries API ', () => {
     const _builtFO = queriesApi._makeFilterObjectFromQueryString(mockQueryString);
     expect(_builtFO).to.eql(_mockBuiltFO);
   });
+
+  it('_makeFilterQueryData method should convert a query string, to all the other data types', () => {
+    const filterQueryData = queriesApi._makeFilterQueryData({queryString: mockQueryString});
+    expect(filterQueryData).to.have.keys(['filterObject', 'queryObject', 'queryString', 'view']);
+  });
+
+  it('_makeFilterQueryData method should convert a query object, to all the other data types', () => {
+    const filterQueryData = queriesApi._makeFilterQueryData({queryObject: mockQueryObj});
+    expect(filterQueryData).to.have.keys(['filterObject', 'queryObject', 'queryString', 'view']);
+  });
+
+  it('_makeFilterQueryData method should convert a filter object, to all the other data types', () => {
+    const filterQueryData = queriesApi._makeFilterQueryData({filterObject: mockFilterObj});
+    expect(filterQueryData).to.have.keys(['filterObject', 'queryObject', 'queryString', 'view']);
+  });
   
+  it('_writeFilterQueryDataToStore method should update the store with new query data', done => {
+    const filterQueryData = queriesApi._makeFilterQueryData({queryObject: mockQueryObj});
+
+    queriesApi._writeFilterQueryDataToStore(filterQueryData)
+    const state = rxdux.store$.value;
+    assert.equal(state.queryObject, mockQueryObj);
+    done();
+  });
+
   it('_writeQueryStringToStore method should update the store with a new query string', done => {
     let called = false;
 

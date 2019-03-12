@@ -4,6 +4,7 @@ import ViewsApi from 'Src/apis/views.js';
 import optionsExample from 'Src/options.example.js';
 import Rxdux from 'Src/rxdux';
 import Hooks from 'Src/hooks';
+import ViewsApi from 'Src/apis/views';
 import Queries from 'Src/apis/queries';
 import DataApi from 'Src/apis/data';
 import createMemoryHistory from 'history/createMemoryHistory';
@@ -14,6 +15,7 @@ describe('The Filters API ', () => {
   let filtersApi, viewsApi, dataApi, queries, history;
   const hooks = new Hooks();
   const rxdux = new Rxdux(optionsExample, hooks);
+  const views = new ViewsApi(rxdux, optionsExample, {hooks});
 
   const exampleFilterRun = {
     view : 'eli',
@@ -44,7 +46,7 @@ describe('The Filters API ', () => {
     queries = new Queries(rxdux, optionsExample, {hooks}, history);
     viewsApi = new ViewsApi(rxdux, optionsExample, {hooks});
     dataApi = new DataApi(rxdux, optionsExample, {hooks});
-    filtersApi = new FiltersApi(rxdux, optionsExample, {hooks, queries, data: dataApi});
+    filtersApi = new FiltersApi(rxdux, optionsExample, {hooks, queries, data: dataApi, views});
  
     viewsApi.setViews(mockViews)
   });

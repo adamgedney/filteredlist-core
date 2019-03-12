@@ -10,8 +10,11 @@ import Settings from 'Src/apis/settings';
 import Filters from 'Src/apis/filters';
 import Hooks from 'Src/hooks';
 import mockViews from './mocks/views.mock';
+import mockBuiltFilterObj from './mocks/builtFilterObj.mock';
 
 import { __TEST_RUNNER } from 'Src/constants';
+import mockQueryObj from './mocks/queryObj.mock';
+import mockQueryString from './mocks/queryString.mock';
 
 describe('The filteredlist-core library', () => {
   let fl;
@@ -51,34 +54,33 @@ describe('The filteredlist-core library', () => {
   );
 
   it('_onPageLoad should pull the current query string from the url, then return it and the query object data', done => {
-    // expect(fl._onPageLoad()).to.have.keys(['queryString', 'filterObject', 'currentView', 'queryObject']);
-    expect(fl._onPageLoad()).to.have.keys(['queryString']);
+    expect(fl._onPageLoad()).to.have.keys(['queryString', 'filterObject']);
     done();
   });
 
 
   it('_onPageLoad should update the store with the filterObject, queryObject, queryString, and selectedView', done => {
+    fl._onPageLoad();
+    
+    const state = fl.rxdux.store$.value;
+
+    expect(state.filterObject).to.eql(mockBuiltFilterObj);
+    expect(state.queryObject).to.eql(mockQueryObj);
+    expect(state.queryString).to.equal(mockQueryString.replace('&view=eli', ''));
+    expect(state.selectedView).to.equal('eli');
+    done();
+  });
+
+  it('_onPageLoad should trigger the onFilterChange$ hook', done => {
     let called = false;
     const {queryString, queryObject, filterObject, currentView} = fl._onPageLoad();
 
-    fl.rxdux.store$.subscribe(state => {
+    fl.onFilterChange$.subscribe((data) => {
       if (!called) {
-        expect(state.filterObject).to.eql(filterObject);
+        expect(data).to.eql(filterObject);
         done(); called = true;
       }
     });
   });
-
-  // it('_onPageLoad should trigger the onFilterChange$ hook', done => {
-  //   let called = false;
-  //   const {queryString, queryObject, filterObject, currentView} = fl._onPageLoad();
-
-  //   fl.onFilterChange$.subscribe((data) => {
-  //     if (!called) {
-  //       expect(data).to.eql(filterObject);
-  //       done(); called = true;
-  //     }
-  //   });
-  // });
 
 });

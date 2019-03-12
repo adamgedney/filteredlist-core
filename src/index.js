@@ -22,8 +22,8 @@ export default class{
     this.workspace = new Workspace(this.rxdux, this.options, this); 
     this.settings = new Settings(this.rxdux, this.options, this); 
     this.data = new Data(this.rxdux, this.options, this); 
-    this.filters = new Filters(this.rxdux, this.options, this);
     this.views = new Views(this.rxdux, this.options, this);
+    this.filters = new Filters(this.rxdux, this.options, this);
 
     this._setViews(this.options.views);
     this._onPageLoad();
@@ -62,21 +62,14 @@ export default class{
   _onPageLoad(){
     // GEt the query string, generate a query object and filter object, write them to the store
     const queryString = this.queries._readQueryStringFromURL();
-    // const filterObject = this.queries._makeFilterObjectFromQueryString(queryString);
-    // const queryObject = this.queries._makeQueryObject(filterObject);
-    // const currentView = filterObject.view;
+    const filterObject = this.queries._makeFilterObjectFromQueryString(queryString);
 
-    // this.views.selectView(currentView);
-    // this.queries._writeQueryStringToStore(queryString);
-    // this.queries._writeQueryObjectToStore(queryObject);
-    // this.queries._writeFilterObjectToStore(filterObject);
-  
 
     // this.hooks.onFilterChange$.subscribe(change => {
       // console.log('FILTERS RAN____ ', JSON.stringify(filterObject, null, 2));
     // })
     // Now we've synced the store. Go ahead and run the filter command
-    this.filters.run(null, queryString)
+    this.filters.run(filterObject)
     // .subscribe(data => {
     //   console.log('FILTERS RAN____ ', data);
     // })
@@ -100,7 +93,7 @@ export default class{
 
     return {
       queryString,
-      // filterObject,
+      filterObject
       // queryObject,
       // currentView
     }
