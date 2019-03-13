@@ -97,7 +97,6 @@ export default {
       ],
       "_pagination": {
         "cursor": null,
-        "page": 1,
         "skip": 0,
         "take": 25,
         "totalItems": 0
@@ -116,7 +115,6 @@ export default {
       ],
       "_pagination": {
         "cursor": null,
-        "page": 1,
         "skip": 0,
         "take": 25,
         "totalItems": 0
@@ -140,7 +138,6 @@ export default {
       ],
       "_pagination": {
         "cursor": null,
-        "page": 1,
         "skip": 0,
         "take": 25,
         "totalItems": 0

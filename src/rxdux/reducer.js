@@ -24,7 +24,8 @@ import {
 import _merge from 'lodash.merge';
 import {getFilters} from '../utils';
 import {makeFilterQueryData} from '../apis/queries';
-const paginationDefault = {cursor: null, page: 1, skip: 0, take: 25, totalItems: 0};
+import {calculatePagination} from '../rxdux/utils';
+const paginationDefault = {cursor: null, skip: 0, take: 25, totalItems: 0};
 
 /** 
  * Curried. Takes the options and hooks, then returns a real reducer; 
@@ -75,35 +76,39 @@ export default (options, hooks) => (state = initialState, action) => {
       return _state;
     
     case PUSH_ITEMS_TO_STORE:
+      _state.loading = false;
       _state.items = _merge(_state.items, _data.items);
 
       // Update item count
       _state.views.map(view => {
         if(view.id === _state.selectedView) {
-          view._pagination.totalItems = _data.totalItems || 0;
+          view._pagination = _merge(view._pagination, calculatePagination(_data, view));
         }
       });
 
       return _state;
     
     case REPLACE_ITEMS:
+      _state.loading = false;
       _state.items = _data.items;
 
       // Update item count
       _state.views.map(view => {
         if(view.id === _state.selectedView) {
-          view._pagination.totalItems = _data.totalItems || 0;
+          view._pagination = _merge(view._pagination, calculatePagination(_data, view));
         }
       });
 
       return _state;
     
     case UPDATE_ITEM:
+      _state.loading = false;
       _state.items[_data.id] = Object.assign({}, _state.items[_data.id], _data.item);
 
       return _state;
     
     case CLEAR_ITEMS:
+      _state.loading = false;
       _state.items = {}; 
 
       // Update item count
@@ -220,11 +225,15 @@ export default (options, hooks) => (state = initialState, action) => {
     // }
 
       // Update the selectedView with the current filter instructions
-      const {queryObject, queryString, filterObject} = makeFilterQueryData({filterObject: _data});
-      _state.selectedView = _data.view;
+      const {queryObject, queryString, filterObject} = makeFilterQueryData({filterObject: _data, state});
+      
+      if (_data.view) {
+        _state.selectedView = _data.view;
+      }
+      
       _state.queryObject = queryObject;
       _state.queryString = queryString;
-      _state.filterObject = _data;
+      _state.filterObject = filterObject;
 
       _state.views = _state.views.map(view => {
         if (view.id === _state.selectedView) { // view specific filter runs
@@ -313,3 +322,4 @@ export default (options, hooks) => (state = initialState, action) => {
       return _state;
   }
 }
+

@@ -10,6 +10,8 @@ import createHistory from 'history/createBrowserHistory';
 import createMemoryHistory from 'history/createMemoryHistory';
 var pjson = require('../package.json');
 
+console.log(`filteredlist-core | version ${pjson.version}`);
+
 export default class{
   constructor(options) {
     this.options = options; //  @todo add options schema validation in the future
@@ -45,11 +47,9 @@ export default class{
    */
   _makeGlobal() {
     try{
-      console.log(`react-filteredlist | version ${pjson.version}`);
-      if(!window && !window.Filteredlist) {window['Filteredlist'] = {};}
-      if(window && window.Filteredlist && !window.Filteredlist.instance) {window.Filteredlist.instance = {};}
+      if(window && !window.Filteredlist) {window['Filteredlist'] = {};}
 
-      window.Filteredlist.instance[this.options.id || Math.random()*10000] = this;
+      window.Filteredlist[this.options.id || Math.random()*10000] = this;
     }catch(e){}
   }
 
@@ -117,14 +117,18 @@ export default class{
    * @returns
    */
   _onPageLoad(_queryString){
-    let queryString = _queryString;;
+    let queryString = _queryString;
     
     if (!queryString) {
       queryString = this.queries._readQueryStringFromURL();
     }
 
-    return this.filters.run(
-      this.queries._makeFilterObjectFromQueryString(queryString) // filterObject
-    );
+    if (queryString) {
+      this.filters.run(
+        this.queries._makeFilterObjectFromQueryString(queryString) // filterObject
+      )
+    }
+
+    return true;
   }
 }

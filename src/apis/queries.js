@@ -147,8 +147,8 @@ export default class{
    * Gets the pagination query params from the url to preserve them on write
    */
   _getPaginationQueryParams() {
-    // const params = _.pick(this.parseParms(this.readQueryStringFromURL()), ['skip', 'take', 'page']);
-    const params = this._pickFromUrl(['skip', 'take', 'page']);
+    // const params = _.pick(this.parseParms(this.readQueryStringFromURL()), ['skip', 'take']);
+    const params = this._pickFromUrl(['skip', 'take']);
     let str = '';
 
     // @todo convert this to a reducer
@@ -332,8 +332,8 @@ export default class{
    * @returns {*}
    * @private
    */
-  export function makeQueryObject({filters, sort, pagination}) {
-    const _filters = filters.reduce((acc, {id, value}) => {
+  export function makeQueryObject({filters, sort, pagination, view = null}) {
+    const _filters = filters ? filters.reduce((acc, {id, value}) => {
       let key = id;
       // let value = filter[key];
 
@@ -344,7 +344,7 @@ export default class{
       // }
 
       const isSortKey = key.indexOf('sort-') > -1;
-      const paginationKeys = ['skip', 'take', 'page', 'cursor'];
+      const paginationKeys = ['skip', 'take', 'cursor'];
 
       if (isSortKey) { return acc; }
       if (paginationKeys.includes(key)) { return acc; }
@@ -364,25 +364,25 @@ export default class{
       }
       // return the mutated object
       return acc;
-    }, {});
+    }, {}) : false;
 
-    const _sort = sort
+    const _sort = sort ? sort
       .reduce((acc, curr) => {
         acc[`sort-${curr.property}`] = curr.sort;
         return acc;
-      }, {});
+      }, {}) : false;
 
-      let _pagination = {
-        skip: Number(pagination.skip),
-        take: Number(pagination.take),
-        page: Number(pagination.page)
-      };
+    let _pagination = pagination ? {
+      skip: Number(pagination.skip),
+      take: Number(pagination.take)
+    } : false;
 
-      if (typeof pagination.cursor !== 'undefined') {
-        _pagination.cursor = pagination.cursor;
-      }
+    if (_pagination && typeof pagination.cursor !== 'undefined') {
+      _pagination.cursor = pagination.cursor;
+    }
 
-      return {..._filters, ..._sort, ..._pagination};
+    console.log('makeQueryObject', _pagination);
+    return {..._filters, ..._sort, ..._pagination, view};
   };
 
   /**
@@ -443,6 +443,15 @@ export default class{
    * @returns
    */
   export function makeFilterObjectFromQueryString(str){
+    if (!str) { 
+      return {
+        filters: [],
+        sort: [],
+        pagination: {},
+        view: ''
+      }; 
+    }
+
     const obj = decodeURI(str.replace(/^\?/, ''))
       .split("&")
       .reduce((acc, segment) => {
@@ -455,7 +464,7 @@ export default class{
         if (key === 'view') {
           
           acc.view = value[0];
-        } else if (['skip', 'take', 'page', 'cursor'].includes(key)) {
+        } else if (['skip', 'take', 'cursor'].includes(key)) {
           
           acc.pagination[key] = Number(value[0]); // un arrayify pagination values
         } else if (key.indexOf('sort-') > -1) {
@@ -487,10 +496,10 @@ export default class{
    * Helper for building filter query data objects
    *
    * @export
-   * @param {*} {filterObject, queryObject, queryString}
+   * @param {*} {filterObject, queryObject, queryString, state}
    * @returns
    */
-  export function makeFilterQueryData({filterObject, queryObject, queryString}) {
+  export function makeFilterQueryData({filterObject, queryObject, queryString, state}) {
     let _filterObject = {}; 
     let _queryObject = {}; 
     let _queryString = '';
@@ -504,6 +513,13 @@ export default class{
     } else if (filterObject) {
 
       _filterObject = filterObject;
+
+      // If there is state and a previous filterObject, we need to merge the 
+      // previous filterObject with the incoming request.
+      if (state) {
+        _filterObject = _merge(state.filterObject, filterObject);
+      }
+
       _queryObject = makeQueryObject(_filterObject);
       _queryString = makeQueryString(_queryObject);
     } else if (queryObject) {

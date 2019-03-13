@@ -93,7 +93,7 @@ describe('The Filters API ', () => {
     filtersApi.getPaginationFilters('eli')
       .subscribe(d => {
         if(!called) {
-          expect(d).to.eql({cursor: null, page: 1, skip: 0, take: 25, totalItems: 100});// total 100 is set by the data.spec file
+          expect(d).to.eql({cursor: null, skip: 0, take: 25, totalItems: 100});// total 100 is set by the data.spec file
           done();called = true;
         }
       }); 

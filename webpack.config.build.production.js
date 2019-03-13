@@ -11,14 +11,14 @@ export default merge(
         output: {
             filename: "index.min.js",
         },
-
-        plugins: [new UglifyJsPlugin({
-            sourceMap: false,
-            output: {
-                comments: false
-            },
-            cacheFolder: path.resolve(__dirname, '.tmp/'),
-            minimize: true }
-        )]
-    },
+        devtool: 'source-map',
+        // plugins: [new UglifyJsPlugin({
+        //     // sourceMap: true,
+        //     output: {
+        //         comments: false
+        //     },
+        //     cacheFolder: path.resolve(__dirname, '.tmp/'),
+        //     minimize: true }
+        // )]
+    }
 );

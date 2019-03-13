@@ -37,6 +37,6 @@ export default {
       "sort": "ASC"
     }
   ],
-  "pagination": { skip: 0, take: 25, page: 1, cursor: null },
+  "pagination": { skip: 0, take: 25, cursor: null },
   view: 'eli'
 };

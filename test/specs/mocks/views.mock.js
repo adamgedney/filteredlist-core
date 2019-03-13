@@ -13,7 +13,7 @@ export default [
         ]
       }
     ],
-    // _pagination: {cursor: null, page: 1, skip: 0, take: 25, totalItems: 0}
+    // _pagination: {cursor: null, skip: 0, take: 25, totalItems: 0}
   },
   {id: 'eliWithGlasses', columns:[{property: 'id'}, {property: 'title', visible: true}]},
   {id: 'eliWithAPegLeg', columns:[{property: 'id'}, {property: 'title', visible: false}, {property: 'genre', visible: true}]}

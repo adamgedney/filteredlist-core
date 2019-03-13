@@ -9,7 +9,7 @@ export const getFilters = function({view, filterGroup, state}){
     }
     return acc;
   }, []);
-  const pagination = {skip: viewObject._pagination.skip, take: viewObject._pagination.take, page: viewObject._pagination.page, cursor: viewObject._pagination.cursor};
+  const pagination = {skip: viewObject._pagination.skip, take: viewObject._pagination.take, cursor: viewObject._pagination.cursor};
   const filters = !!filterGroup 
     ? viewObject.filterGroups.filter(group => group.id === filterGroup)[0].filters
     :  viewObject.filterGroups.reduce((acc, group) => {

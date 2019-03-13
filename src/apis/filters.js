@@ -29,37 +29,44 @@ export default class{
     const {_onFilterChange$, onFilterChange$, _onPaginationChange$, onPaginationChange$, _onSort$, onSort$, _onFiltersReset$, onFiltersReset$} = this.hooks;
 
     _onFilterChange$
-      .subscribe(({change, state}) =>
-        onFilterChange$.next({change, state, 
-          replaceItems: ({items, idProp = 'id', totalItems}) => 
-            this.data.replaceItems({items, idProp, totalItems})
-        })
-      );
+      .subscribe(({change, state}) => {
+        if (change) { //  BehaviorSubjects initialize
+          onFilterChange$.next({change, state, 
+            replaceItems: ({items, idProp = 'id', totalItems}) => 
+              this.data.replaceItems({items, idProp, totalItems})
+          })
+        }
+      });
 
     _onPaginationChange$
-      .subscribe(({change, state}) =>
-        onPaginationChange$.next({change, state, 
-          replaceItems: ({items, idProp = 'id', totalItems}) => 
-            this.data.replaceItems({items, idProp, totalItems})
-        })
-      );
+      .subscribe(({change, state}) => {
+        if (change) { //  BehaviorSubjects initialize
+          onPaginationChange$.next({change, state, 
+            replaceItems: ({items, idProp = 'id', totalItems}) => 
+              this.data.replaceItems({items, idProp, totalItems})
+          })
+        }
+      });
 
     _onSort$
-      .subscribe(({change, state}) =>
-        onSort$.next({change, state, 
-          replaceItems: ({items, idProp = 'id', totalItems}) => 
-            this.data.replaceItems({items, idProp, totalItems})
-        })
-      );
+      .subscribe(({change, state}) => {
+        if (change) { //  BehaviorSubjects initialize
+          onSort$.next({change, state, 
+            replaceItems: ({items, idProp = 'id', totalItems}) => 
+              this.data.replaceItems({items, idProp, totalItems})
+          })
+        }
+      });
 
     _onFiltersReset$
-      .subscribe(({change, state}) =>
-        onFiltersReset$.next({change, state, 
-          replaceItems: ({items, idProp = 'id', totalItems}) => 
-            this.data.replaceItems({items, idProp, totalItems})
-        })
-      );
-
+      .subscribe(({change, state}) => {
+        if (change) { //  BehaviorSubjects initialize
+          onFiltersReset$.next({change, state, 
+            replaceItems: ({items, idProp = 'id', totalItems}) => 
+              this.data.replaceItems({items, idProp, totalItems})
+          })
+        }
+      });
   }
 
   /**
@@ -97,7 +104,7 @@ export default class{
 
   /**
    * Returns the pagination portion of the view
-   * example result:   pagination: {cursor: null, page: 1, skip: 0, take: 25, totalItems: 0},// if total isn't supplied then it will default to the items.length
+   * example result:   pagination: {cursor: null, skip: 0, take: 25, totalItems: 0},// if total isn't supplied then it will default to the items.length
    *
    * @param {*} viewId
    * @returns

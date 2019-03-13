@@ -1,4 +1,4 @@
-import {Subject} from 'rxjs';
+import {Subject, BehaviorSubject} from 'rxjs';
 
 let _instance;
 
@@ -8,50 +8,50 @@ export default class{
      * fl.onFilterChange$.subscribe(() => {});
      * fl.onFilterChange$.next();
      */
-    onFilterChange$ = new Subject();
+    onFilterChange$ = new BehaviorSubject({});
     
         /**   
      * @examples
      * fl.onFiltersReset$.subscribe() => {});
      */
-    onFiltersReset$ = new Subject();
+    onFiltersReset$ = new BehaviorSubject({});
 
         /**   
      * @examples
      * fl.onPaginationChange$.subscribe() => {});
      */
-    onPaginationChange$ = new Subject();
+    onPaginationChange$ = new BehaviorSubject({});
     
     /**   
      * @examples
      * fl.onSort$.subscribe() => {});
      */
-    onSort$ = new Subject();
+    onSort$ = new BehaviorSubject({});
 
     /**  
      * @examples
      * fl.onFilterChange$.subscribe(() => {});
      * fl.onFilterChange$.next();
      */
-    _onFilterChange$ = new Subject();
+    _onFilterChange$ = new BehaviorSubject({});
     
         /**   
      * @examples
      * fl.onFiltersReset$.subscribe() => {});
      */
-    _onFiltersReset$ = new Subject();
+    _onFiltersReset$ = new BehaviorSubject({});
 
         /**   
      * @examples
      * fl.onPaginationChange$.subscribe() => {});
      */
-    _onPaginationChange$ = new Subject();
+    _onPaginationChange$ = new BehaviorSubject({});
     
     /**   
      * @examples
      * fl.onSort$.subscribe() => {});
      */
-    _onSort$ = new Subject();
+    _onSort$ = new BehaviorSubject({});
 
     /**   
      * @examples
@@ -114,6 +114,7 @@ export default class{
     onViewUpdated$ = new Subject();
 
     constructor() {
+
       // Singleton
       if (!_instance) { _instance = this; }
 

@@ -67,6 +67,7 @@ export default class{
     .pipe(
       first(),
       tap(state => {
+        this.hooks.onLoadingChange$.next({loading: false, state});
         this.hooks.onDataPushed$.next({items: state.items, state});
       }),
       mergeMap((state) => selector == 'state' ? of(state) : this.getItems())
@@ -95,6 +96,7 @@ export default class{
     .pipe(
       first(),
       tap(state => {
+        this.hooks.onLoadingChange$.next({loading: false, state});
         this.hooks.onDataReplaced$.next({items: state.items, state});
       }),
       mergeMap((state) => selector == 'state' ? of(state)  : this.getItems())
@@ -119,6 +121,7 @@ export default class{
     .pipe(
       first(),
       tap(state => {
+        this.hooks.onLoadingChange$.next({loading: false, state});
         this.hooks.onItemUpdated$.next({item, items: state.items, state});
       }),
       mergeMap((state) => selector == 'state' ? of(state)  : this.getItems())
@@ -140,6 +143,7 @@ export default class{
     .pipe(
       first(),
       tap(state => {
+        this.hooks.onLoadingChange$.next({loading: false, state});
         this.hooks.onItemsCleared$.next({items: state.items, state});
       }),
       mergeMap(() => this.getItems())

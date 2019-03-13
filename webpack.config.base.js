@@ -1,5 +1,5 @@
 
 
 export default {
-    target: 'node'
+  target: 'node'
 }

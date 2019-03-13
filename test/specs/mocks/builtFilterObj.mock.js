@@ -28,8 +28,7 @@ export default {
   ],
   "pagination": {
     "skip": 0,
-    "take": 25,
-    "page": 1
+    "take": 25
   },
   "view": "eli"
 };

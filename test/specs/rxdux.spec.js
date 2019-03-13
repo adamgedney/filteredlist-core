@@ -30,6 +30,7 @@ describe('The Rxdux Store', () => {
   it('should have [selector$] method', () => assert.typeOf(rxdux.selector$, 'function'));
   it('should have [dispatch] method', () => assert.typeOf(rxdux.dispatch, 'function'));
   it('should have [reset] method', () => assert.typeOf(rxdux.reset, 'function'));
+  it('should have a state property', () => assert.ok(rxdux.state));
   
   it('reducer should return a new state', () => {
     expect(rxdux.reducer({}, {type: __TEST_RUNNER, data: {}})).to.eql({})
