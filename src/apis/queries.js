@@ -372,7 +372,7 @@ export default class{
         return acc;
       }, {}) : false;
 
-    let _pagination = pagination ? {
+    let _pagination = (pagination && Object.keys(pagination).length > 0) ? {
       skip: Number(pagination.skip),
       take: Number(pagination.take)
     } : false;

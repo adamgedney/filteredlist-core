@@ -310,9 +310,11 @@ export default (options, hooks) => (state = initialState, action) => {
           }
 
           /** PAGINATION FILTER */
-          if (_data.pagination) {
+          if (_data.pagination && Object.keys(_data.pagination).length > 0) {
             view._pagination = _merge(view._pagination, _data.pagination);
           }
+
+
         }
 
         return view;
