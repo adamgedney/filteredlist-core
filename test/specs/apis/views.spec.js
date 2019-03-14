@@ -1,12 +1,13 @@
 import { expect, assert } from 'chai';
 import ViewsApi from 'Src/apis/views.js';
+import QueriesApi from 'Src/apis/queries.js';
 import optionsExample from 'Src/options.example.js';
 import Rxdux from 'Src/rxdux';
 import Hooks from 'Src/hooks';
-import { stringify } from 'querystring';
+import createMemoryHistory from 'history/createMemoryHistory';
 
 describe('The Views API ', () => {
-  let viewsApi;
+  let viewsApi, queries, history;
   const hooks = new Hooks();
   const rxdux = new Rxdux({}, hooks);
   const mockViews = [
@@ -16,19 +17,23 @@ describe('The Views API ', () => {
   ];
   const mockUpdatedViewItem = {
     id: 'eli', 
-    columns:[{property: 'id', visible: true}, {property: 'title', visible: false}],
+    columns:[{property: 'id', visible: true, sort: null}, {property: 'title', visible: false, sort: null}],
     _pagination: {
       "cursor": null,
       "skip": 0,
+      "page": 1,
       "take": 25,
-      "totalItems": 300 // 300 is input to the store by the filters.spec
+      "totalItems": 300, // 300 is input to the store by the filters.spec
+      "totalPages": 12
     },
     filterGroups: []
   };
 
   beforeEach(function() {
     rxdux.reset();
-    viewsApi = new ViewsApi(rxdux, optionsExample, {hooks});
+    history = createMemoryHistory();
+    queries = new QueriesApi(rxdux, optionsExample, {hooks, history});
+    viewsApi = new ViewsApi(rxdux, optionsExample, {hooks, queries});
   });
 
   it('should instantiate', () => expect(viewsApi).to.be.instanceOf(ViewsApi));

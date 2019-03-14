@@ -99,13 +99,13 @@ describe('The Queries API ', () => {
     // Set the view(beforeEach) so we have the correct filters in the store
     const filters = getFilters({view: 'eli', state: mockState});
     const queryObj = queriesApi._makeQueryObject(filters);
- 
+ console.log('queryObj', queryObj, filters, mockQueryObj)
     expect(queryObj).to.eql(mockQueryObj);
     done();
   });
     
   it('_makeQueryString method should convert a query(filter) object to a query string', () => 
-    expect(queriesApi._makeQueryString(mockQueryObj)).to.eql(mockQueryString.replace('&view=eli', '')));
+    expect(queriesApi._makeQueryString(mockQueryObj)).to.eql(mockQueryString));
 
   it('_writeQueryStringToUrl method should modify the history api by writing to the location property', () =>
     expect(queriesApi._writeQueryStringToUrl(mockQueryString, {writeQueryStringToUrl: true}).location.search).to.eql(mockQueryString)); 

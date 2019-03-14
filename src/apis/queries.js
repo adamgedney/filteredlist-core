@@ -381,7 +381,6 @@ export default class{
       _pagination.cursor = pagination.cursor;
     }
 
-    console.log('makeQueryObject', _pagination);
     return {..._filters, ..._sort, ..._pagination, view};
   };
 

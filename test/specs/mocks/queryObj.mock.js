@@ -8,5 +8,6 @@ export default {
   'sort-id': 'ASC',
   skip: 0,
   take: 25,
-  cursor: null 
+  cursor: null,
+  view: 'eli'
 };
