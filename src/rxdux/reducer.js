@@ -265,10 +265,12 @@ export default (options, hooks) => (state = initialState, action) => {
           /** SORT FILTER */
           if (_data.sort) {
             view.columns.map(column => {
-              if (column.id === _data.sort.property) {
-                column.sort = _data.sort.operator;
-              }
-
+              _data.sort.forEach(sortCmd => {
+                if (column.id === sortCmd.property) {
+                  column.sort = sortCmd.operator;
+                }
+              })
+              
               return column;
             });
           }
@@ -313,6 +315,10 @@ export default (options, hooks) => (state = initialState, action) => {
 
         return view;
       });
+
+      _state.filterObject = {};
+      _state.queryObject = {};
+      _state.queryString = '';
      
       _state.loading = true;
 

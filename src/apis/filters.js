@@ -128,25 +128,20 @@ export default class{
     const state$ = this.rxdux.dispatch({
       type: RUN_FILTER,
       data: filterObject
-    }, 'state')
-    .pipe(
-      first(),
-      tap(state => {
-        this.hooks.onLoadingChange$.next({loading: true, state});
+    }, 'state');
+    const state = this.rxdux.state;
 
-        // Write our query to the url
-        if (state.queryString) {
-          this.queries._writeQueryStringToUrl(state.queryString, this.options);
-        }
+    this.hooks.onLoadingChange$.next({loading: true, state});
+    this.hooks._onFilterChange$.next({change: filterObject, state});
 
-        // These _on hooks get picked up by the src/index file in the [initSubscriptions] fn
-        if (filterObject.sort) { this.hooks._onSort$.next({view: filterObject.view, sort: filterObject.sort, state}); }
-        if (filterObject.pagination) { this.hooks._onPaginationChange$.next({view: filterObject.view, pagination: filterObject.pagination, state}); }
-        if (filterObject.filters) { this.hooks._onFilterChange$.next({change: filterObject, state}); }
-      })
-    );
+    // Write our query to the url
+    if (state.queryString) {
+      this.queries._writeQueryStringToUrl(state.queryString, this.options);
+    }
 
-    state$.subscribe(() => {});// ensure a hook run
+    // These _on hooks get picked up by the src/index file in the [initSubscriptions] fn
+    if (filterObject.sort) { this.hooks._onSort$.next({change: filterObject, state}); }
+    if (filterObject.pagination) { this.hooks._onPaginationChange$.next({change: filterObject, state}); }
 
     return state$
   }
@@ -157,17 +152,14 @@ export default class{
    * @returns
    */
   resetFilters() {
-    const state$ = this.rxdux.dispatch({
+    this.rxdux.dispatch({
       type: RESET_FILTERS
-    }, 'state')
-    .pipe(
-      first(),
-      tap(state => {
-        this.hooks._onFiltersReset$.next({change: {}, state});
-        this.hooks.onLoadingChange$.next({loading: true});
-      })
-    );
-    state$.subscribe(() => {});
+    }, 'state');
+
+    const state = this.rxdux.state;
+    this.queries.removeQueryStringFromUrl();
+    this.hooks._onFiltersReset$.next({change: {}, state});
+    this.hooks.onLoadingChange$.next({loading: true});
 
     return true;
   }

@@ -38,7 +38,7 @@ export default class{
     this.store.dispatch(action);
 
     if (selector && selector === 'state') {
-      return of(this.store.getState());
+      return of(this.state);
     } else if (selector) {
       return this.selector$(selector);
     }
