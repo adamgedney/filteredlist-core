@@ -22,9 +22,9 @@ export default class{
     const {onSelectedViewChange$, _onSelectedViewChange$} = this.hooks;
 
     _onSelectedViewChange$
-      .subscribe(({selectedView, state}) => {
-        if (selectedView) { //  BehaviorSubjects initialize
-          onSelectedViewChange$.next({selectedView, state, 
+      .subscribe(({change, state}) => {
+        if (change) { //  BehaviorSubjects initialize
+          onSelectedViewChange$.next({change, state, 
             replaceItems: ({items, idProp = 'id', totalItems}) => 
               this.data.replaceItems({items, idProp, totalItems})
           })
@@ -83,7 +83,8 @@ export default class{
       this.queries._writeQueryStringToUrl(state.queryString, this.options);
     }
 
-    this.hooks._onSelectedViewChange$.next({selectedView: id, state});
+    this.hooks._onSelectedViewChange$.next({change: {selectedView: id}, state});
+    this.hooks._onFilterChange$.next({change: {selectedView: id}, state});
 
     return selectedView$;
   }
