@@ -38,6 +38,7 @@ describe('The Views API ', () => {
   it('should have [getSelectedView] method', () => assert.typeOf(viewsApi.getSelectedView, 'function'));
   it('should have [getViewById] method', () => assert.typeOf(viewsApi.getViewById, 'function'));
   it('should have [updateView] method', () => assert.typeOf(viewsApi.updateView, 'function'));
+  it('should have [activateProxyHookSubscriptions] method', () => assert.typeOf(viewsApi.activateProxyHookSubscriptions, 'function'));
 
   it('getViews method should return an Observable that plucks the views from the current rxdux state', (done) => {   
     let called = false;
@@ -73,6 +74,20 @@ describe('The Views API ', () => {
           done();called = true;
         }
       }); 
+  });
+
+  it('selectView method should trigger the onSelectedViewChange$ hook to fire', done => {   
+    let called = false;
+    
+    hooks.onSelectedViewChange$
+      .subscribe(d => {
+        if(!called) {
+          expect(d).to.have.keys(['selectedView', 'state', 'replaceItems']);
+          done();called = true;
+        }
+      });
+
+      assert.ok(viewsApi.selectView('eliWithAPegLeg'));
   });
 
   it('getSelectedView method should return the full selectedView object', (done) => {   

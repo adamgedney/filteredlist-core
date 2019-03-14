@@ -110,7 +110,8 @@ export default class{
     onItemUpdated$ = new Subject();
     onItemsCleared$ = new Subject();
     onViewsSet$ = new Subject();
-    onSelectedViewChange$ = new Subject();
+    onSelectedViewChange$ = new BehaviorSubject({});
+    _onSelectedViewChange$ = new BehaviorSubject({});
     onViewUpdated$ = new Subject();
 
     constructor() {

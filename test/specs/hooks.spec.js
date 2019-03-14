@@ -70,6 +70,7 @@ describe('The Hooks ', () => {
   it('should have [onItemsCleared$] Observable property', () => expect(hooks.onItemsCleared$).to.be.instanceOf(Subject));
   it('should have [onViewsSet$] Observable property', () => expect(hooks.onViewsSet$).to.be.instanceOf(Subject));
   it('should have [onSelectedViewChange$] Observable property', () => expect(hooks.onSelectedViewChange$).to.be.instanceOf(Subject));
+  it('should have [_onSelectedViewChange$] Observable property', () => expect(hooks._onSelectedViewChange$).to.be.instanceOf(Subject));
   it('should have [onViewUpdated$] Observable property', () => expect(hooks.onViewUpdated$).to.be.instanceOf(Subject));
 
   /** Hook Subscription testing */

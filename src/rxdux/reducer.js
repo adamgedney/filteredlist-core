@@ -136,6 +136,40 @@ export default (options, hooks) => (state = initialState, action) => {
       return _state;
 
     case SELECT_VIEW:
+
+      // RESETS
+      const filterQueryData = makeFilterQueryData({filterObject: {view: _data.id}});
+
+      _state.filterObject = filterQueryData.filterObject;
+      _state.queryObject = filterQueryData.queryObject;
+      _state.queryString = filterQueryData.queryString;
+      _state.views = _state.views.map(view => {
+
+        /** FILTERING */
+        view.filterGroups.map(group => {
+          group.filters.map(filter => {
+            filter['value']  = null;
+            filter['operator'] = null;
+
+            return filter;
+          });
+
+          return group;
+        })
+
+        /** SORT FILTER */
+        view.columns.map(column => {
+          column['sort'] = null;
+          
+          return column;
+        });
+
+        /** PAGINATION FILTER */
+        view._pagination = paginationDefault;
+
+        return view;
+      });
+
       _state.selectedView = _data.id; 
 
       return _state;

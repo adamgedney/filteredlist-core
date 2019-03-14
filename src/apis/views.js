@@ -8,9 +8,28 @@ import { of } from 'rxjs';
 
 export default class{
   constructor(rxdux, options, instance) {
+    this.options = options;
     this.rxdux = rxdux;
     this.namespace = 'views';
     this.hooks = instance.hooks;
+    this.data = instance.data;
+    this.queries = instance.queries;
+
+    this.activateProxyHookSubscriptions();
+  }
+
+  activateProxyHookSubscriptions() {
+    const {onSelectedViewChange$, _onSelectedViewChange$} = this.hooks;
+
+    _onSelectedViewChange$
+      .subscribe(({selectedView, state}) => {
+        if (selectedView) { //  BehaviorSubjects initialize
+          onSelectedViewChange$.next({selectedView, state, 
+            replaceItems: ({items, idProp = 'id', totalItems}) => 
+              this.data.replaceItems({items, idProp, totalItems})
+          })
+        }
+      });
   }
 
   /**
@@ -56,15 +75,16 @@ export default class{
     const selectedView$ = this.rxdux.dispatch({
       type: SELECT_VIEW,
       data: {id}
-    }, 'selectedView')
-    .pipe(
-      first(),
-      tap(selectedView => {
-        this.hooks.onSelectedViewChange$.next({selectedView});
-      })
-    );
+    }, 'selectedView');
+    const state = this.rxdux.state;
 
-    selectedView$.subscribe(() => {});
+    // Write our query to the url
+    if (state.queryString) {
+      this.queries._writeQueryStringToUrl(state.queryString, this.options);
+    }
+
+    this.hooks._onSelectedViewChange$.next({selectedView: id, state});
+
     return selectedView$;
   }
 
