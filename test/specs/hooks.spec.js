@@ -77,7 +77,7 @@ describe('The Hooks ', () => {
   function testHook(name) {
     describe(`${name} `, () => {
       it('should forward calls to subscribers', () => {
-        hooks[name].subscribe(d => expect(d).to.eql(_onFilterChangePayload));
+        hooks[name].subscribe(d => assert.ok(d));
         hooks[name].next(_onFilterChangePayload);
       });
     
